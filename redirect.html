@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Redirecting...</title></head>
+<body>
+<script src="https://unpkg.com/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
+<script>
+  // This page handles the MSAL redirect response and closes the popup
+  const msalInstance = new msal.PublicClientApplication({
+    auth: {
+      clientId: "0033cfad-c32b-40ff-b09d-9535b6dee673",
+      authority: "https://login.microsoftonline.com/natdev0.onmicrosoft.com",
+      redirectUri: "https://jpappo4.github.io/nd-pipeline-tracker/redirect.html"
+    }
+  });
+  msalInstance.initialize().then(() => {
+    msalInstance.handleRedirectPromise().then(() => {
+      window.close();
+    });
+  });
+</script>
+</body>
+</html>
