@@ -1,0 +1,2881 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>National Development — Acquisitions Pipeline Tracker</title>
+<style>
+/* ── PASSWORD GATE ── */
+#pw-gate{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--nd-dark);
+  display:flex;align-items:center;justify-content:center;
+}
+#pw-box{
+  background:#fff;border-radius:6px;padding:36px 40px;
+  width:340px;box-shadow:0 8px 32px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.pw-pent{
+  width:48px;height:48px;
+  clip-path:polygon(0 0,78% 0,100% 22%,100% 100%,0 100%);
+  background:#4891DC;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:17px;color:#fff;
+}
+.pw-title{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#373534;text-align:center;}
+.pw-sub{font-size:11px;color:#8E8E89;text-align:center;margin-top:-8px;}
+#pw-input{
+  width:100%;padding:9px 12px;border:1.5px solid #E2E2DE;border-radius:3px;
+  font-size:13px;font-family:Arial,sans-serif;outline:none;text-align:center;
+  letter-spacing:2px;
+}
+#pw-input:focus{border-color:#4891DC;}
+#pw-input.shake{animation:shake .35s ease;}
+#pw-btn{
+  width:100%;padding:9px;background:#4891DC;color:#fff;border:none;
+  border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;cursor:pointer;
+}
+#pw-btn:hover{opacity:.88;}
+#pw-err{font-size:11px;color:#c0392b;min-height:14px;text-align:center;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-6px);}
+  40%{transform:translateX(6px);}
+  60%{transform:translateX(-4px);}
+  80%{transform:translateX(4px);}
+}
+</style>
+<style>
+:root{
+  --nd-blue:#4891DC;--nd-dark:#373534;--nd-mid:#8E8E89;
+  --nd-light:#C5C5C0;--nd-pale:#E2E2DE;--nd-white:#FFFFFF;
+  --nd-font:"Arial Nova",Arial,sans-serif;
+  --hdr:60px; --filter-h:44px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--nd-font);color:var(--nd-dark);background:#f0f2f5;font-size:13px;}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:200;
+  background:var(--nd-dark);color:var(--nd-white);
+  height:var(--hdr);display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.nd-pent{
+  width:40px;height:40px;flex-shrink:0;
+  clip-path:polygon(0 0,78% 0,100% 22%,100% 100%,0 100%);
+  background:var(--nd-blue);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:15px;color:#fff;letter-spacing:-.5px;
+}
+.nd-wm .top{font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;}
+.nd-wm .bot{font-weight:300;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--nd-light);}
+.hdr-title{font-size:14px;font-weight:600;padding-left:16px;border-left:1px solid #555;letter-spacing:.3px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-date{font-size:11px;color:var(--nd-light);letter-spacing:.5px;text-transform:uppercase;}
+.btn{padding:5px 12px;border:none;border-radius:3px;cursor:pointer;font-family:var(--nd-font);font-size:11px;font-weight:600;transition:opacity .15s;white-space:nowrap;}
+.btn:hover{opacity:.85;}
+.btn-blue{background:var(--nd-blue);color:#fff;}
+.btn-outline{background:transparent;border:1px solid #666;color:var(--nd-light);}
+.btn-ghost{background:transparent;border:1px solid var(--nd-pale);color:var(--nd-mid);}
+/* ── ADD DEAL MODAL ── */
+#add-deal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;}
+#add-deal-overlay.open{display:flex;}
+#add-deal-modal{background:#fff;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.22);width:680px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.adm-hdr{background:var(--nd-dark);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.adm-hdr-title{font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.adm-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer;line-height:1;padding:0 2px;}
+.adm-close:hover{color:#fff;}
+.adm-body{padding:20px;overflow-y:auto;flex:1;}
+.adm-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;}
+.adm-field{display:flex;flex-direction:column;gap:4px;}
+.adm-field.full{grid-column:1/-1;}
+.adm-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--nd-mid);}
+.adm-input{border:1px solid var(--nd-pale);border-radius:3px;padding:6px 9px;font-family:var(--nd-font);font-size:12px;color:var(--nd-dark);outline:none;width:100%;}
+.adm-input:focus{border-color:var(--nd-blue);}
+.adm-select{border:1px solid var(--nd-pale);border-radius:3px;padding:6px 9px;font-family:var(--nd-font);font-size:12px;color:var(--nd-dark);outline:none;width:100%;background:#fff;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238E8E89'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+.adm-select:focus{border-color:var(--nd-blue);}
+.adm-textarea{border:1px solid var(--nd-pale);border-radius:3px;padding:6px 9px;font-family:var(--nd-font);font-size:12px;color:var(--nd-dark);outline:none;width:100%;resize:vertical;min-height:60px;}
+.adm-textarea:focus{border-color:var(--nd-blue);}
+.adm-footer{padding:14px 20px;border-top:1px solid var(--nd-pale);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;background:#fafaf8;}
+.adm-stage-strip{display:flex;gap:8px;margin-bottom:16px;}
+.adm-stage-btn{flex:1;padding:7px 4px;border:2px solid var(--nd-pale);border-radius:4px;background:#fff;font-family:var(--nd-font);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;color:var(--nd-mid);transition:all .15s;}
+.adm-stage-btn.sel-active{border-color:#4891DC;background:#eef5fd;color:#4891DC;}
+.adm-stage-btn.sel-submitted{border-color:#DC8830;background:#fdf3e8;color:#DC8830;}
+.adm-stage-btn.sel-review{border-color:#8E8E89;background:#f2f2f1;color:#8E8E89;}
+.adm-stage-btn.sel-agreement{border-color:#2e7d4f;background:#e8f5e9;color:#2e7d4f;}
+.adm-stage-btn.sel-hold{border-color:#f5c842;background:#fff9e6;color:#b8860b;}
+.adm-stage-btn.sel-passed{border-color:#e8a0a0;background:#fdf0f0;color:#c0392b;}
+.adm-stage-btn.sel-none{border-color:#373534;background:#f0efee;color:#373534;}
+.adm-phase-row{display:none;}
+
+/* ── STATS ── */
+.stats{display:flex;gap:14px;padding:16px 24px;background:var(--nd-white);border-bottom:1px solid var(--nd-pale);overflow-x:auto;flex-wrap:nowrap;}
+.stat{background:var(--nd-white);border:1px solid var(--nd-pale);border-radius:4px;padding:12px 18px;flex:1 0 140px;min-width:0;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.stat.hl{background:var(--nd-blue);border-color:var(--nd-blue);clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%);flex:1 0 155px;}
+.stat-vc{flex:1 0 165px;}
+.stat-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--nd-mid);font-weight:600;margin-bottom:3px;}
+.stat.hl .stat-lbl,.stat.hl .stat-sub{color:rgba(255,255,255,.75);}
+.stat-val{font-size:26px;font-weight:700;color:var(--nd-blue);line-height:1;}
+.stat.hl .stat-val{color:#fff;}
+.stat-sub{font-size:10px;color:var(--nd-mid);margin-top:2px;}
+.stat-chart{flex:1.5 0 230px;display:flex;flex-direction:column;}
+.chart-body-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.stat-tug{flex:1 0 215px;display:flex;flex-direction:column;}
+.tug-body{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.tug-counts{display:flex;justify-content:space-between;align-items:baseline;margin:4px 0 5px;}
+.tug-acq{font-size:11px;font-weight:700;color:var(--nd-blue);}
+.tug-acq span{font-size:22px;}
+.tug-dev{font-size:11px;font-weight:700;color:var(--nd-dark);}
+.tug-dev span{font-size:22px;}
+.tug-track{position:relative;height:12px;border-radius:6px;background:var(--nd-dark);overflow:hidden;}
+.tug-fill{position:absolute;left:0;top:0;bottom:0;background:var(--nd-blue);border-radius:6px 0 0 6px;transition:width .4s ease;}
+.tug-flag{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;border-radius:2px;transition:left .4s ease;}
+.tug-pcts{display:flex;justify-content:space-between;margin-top:4px;}
+.tug-pcts .tug-acq,.tug-pcts .tug-dev{font-size:10px;}
+/* ── STAGE DISTRIBUTION ── */
+.stat-stages{flex:1.5 0 215px;}
+.stages-bar-wrap{margin:7px 0 6px;}
+.stages-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--nd-pale);}
+.seg{height:100%;min-width:0;transition:width .4s ease;}
+.seg-active{background:var(--nd-blue);}
+.seg-submitted{background:#DC8830;}
+.seg-review{background:#8E8E89;}
+.stages-legend{display:flex;flex-direction:column;gap:4px;}
+.stage-leg-item{display:flex;align-items:center;gap:5px;}
+.stage-dot{width:7px;height:7px;border-radius:1px;flex-shrink:0;}
+.dot-active{background:var(--nd-blue);}
+.dot-submitted{background:#DC8830;}
+.dot-review{background:#8E8E89;}
+.stage-leg-n{font-size:18px;font-weight:700;color:var(--nd-dark);line-height:1;min-width:22px;}
+.stage-leg-lbl{font-size:9px;color:var(--nd-mid);text-transform:uppercase;letter-spacing:.6px;font-weight:600;}
+.stage-leg-pct{font-size:9px;color:var(--nd-light);margin-left:auto;font-weight:600;}
+
+.chart-body{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px;}
+#asset-legend{font-size:9px;color:var(--nd-dark);line-height:1.5;}
+#asset-legend .leg-row{display:flex;align-items:center;gap:4px;}
+#asset-legend .leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── FILTER BAR ── */
+.filter-bar{
+  position:sticky;top:var(--hdr);z-index:190;
+  background:#f8f7f5;border-bottom:1px solid var(--nd-pale);
+  padding:10px 24px;display:flex;align-items:center;gap:16px;
+  flex-wrap:wrap;
+  box-shadow:0 2px 4px rgba(0,0,0,.04);
+}
+.filter-group{
+  display:flex;align-items:center;gap:6px;
+  background:#fff;border:1px solid var(--nd-pale);
+  border-radius:8px;padding:5px 10px;
+}
+.chip-scroll{display:flex;align-items:center;gap:6px;}
+.filter-label{
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--nd-blue);font-weight:700;white-space:nowrap;
+  padding-right:6px;border-right:1px solid var(--nd-pale);margin-right:2px;
+}
+.chip{
+  padding:3px 10px;border-radius:12px;border:1px solid var(--nd-pale);
+  background:transparent;color:var(--nd-mid);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:.3px;
+}
+.chip:hover{border-color:var(--nd-blue);color:var(--nd-blue);background:#eef5fd;}
+.chip.on{background:var(--nd-blue);border-color:var(--nd-blue);color:#fff;}
+.filter-sep{display:none;}
+.search-wrap{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.search{
+  padding:5px 10px 5px 28px;border:1px solid var(--nd-light);border-radius:3px;
+  font-family:var(--nd-font);font-size:12px;width:200px;outline:none;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238E8E89' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 8px center;
+}
+.search:focus{border-color:var(--nd-blue);}
+
+/* ── TABLE WRAPPER ── */
+.tbl-outer{margin:0;padding:0 24px 24px;overflow-y:auto;max-height:calc(100vh - var(--hdr) - var(--filter-h) - 130px);}
+.tbl-wrap{overflow-x:auto;border-radius:0 0 4px 4px;box-shadow:0 1px 4px rgba(0,0,0,.12);background:var(--nd-white);}
+/* ── STAGE SECTIONS ── */
+.stage-section{margin-bottom:20px;}
+.stage-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:4px 4px 0 0;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#fff;}
+.stage-hdr-active{background:#4891DC;}
+.stage-hdr-submitted{background:#DC8830;}
+.stage-hdr-review{background:#8E8E89;}
+.stage-hdr-none{background:#e8a0a0;color:#7a2020;}
+.stage-hdr-agreement{background:#2e7d4f;color:#fff;}
+.stage-hdr-hold{background:#f5c842;color:#5a4000;}
+.stage-hdr-pill{background:rgba(255,255,255,.22);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:600;letter-spacing:.3px;}
+.drop-zone-row td{text-align:center;padding:18px;font-size:11px;color:var(--nd-light);font-style:italic;border:2px dashed var(--nd-pale);border-radius:3px;}
+.drop-zone-row.drag-over td{background:#f4f8fd;color:var(--nd-blue);border-color:var(--nd-blue);}
+tfoot tr{border-top:2px solid var(--nd-pale);background:#f5f5f2;}
+tfoot td{padding:7px 9px;font-size:11px;color:var(--nd-dark);}
+.tfoot-count{font-size:11px;font-weight:700;color:var(--nd-mid);letter-spacing:.3px;}
+.tfoot-money{font-weight:700;}
+/* ── IC DATE ── */
+.icdate-btn{background:none;border:none;cursor:pointer;padding:0;}
+.b-icdate{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:2px 8px;font-size:10px;font-weight:700;letter-spacing:.3px;white-space:nowrap;min-width:38px;transition:opacity .15s;}
+.b-icdate:hover{opacity:.8;}
+.b-icdate-set{background:#e8f4ec;color:#2a7a4b;border:1.5px solid #a5d6b7;}
+.b-icdate-tbd{background:#f0efee;color:var(--nd-mid);border:1.5px solid var(--nd-pale);}
+.b-icdate-empty{background:transparent;color:var(--nd-light);border:1.5px dashed var(--nd-pale);}
+/* IC Date floating popup */
+#icdate-popup,#criticaldate-popup{position:fixed;z-index:9999;background:#fff;border:1px solid var(--nd-pale);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.18);padding:10px;display:none;flex-direction:column;gap:7px;width:186px;}
+#icdate-popup.open,#criticaldate-popup.open{display:flex;}
+#icdate-popup input[type=date],#criticaldate-popup input[type=date]{width:100%;border:1px solid var(--nd-pale);border-radius:3px;padding:5px 7px;font-family:var(--nd-font);font-size:12px;color:var(--nd-dark);outline:none;cursor:pointer;}
+#icdate-popup input[type=date]:focus,#criticaldate-popup input[type=date]:focus{border-color:var(--nd-blue);}
+.icdate-popup-btns{display:flex;gap:6px;}
+.icdate-popup-btns button{flex:1;padding:5px;border:1px solid var(--nd-pale);border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--nd-font);background:#fff;color:var(--nd-dark);transition:background .12s;}
+.icdate-popup-btns button:hover{background:var(--nd-pale);}
+.icdate-popup-btns .btn-tbd{color:var(--nd-mid);}
+.icdate-popup-btns .btn-clear{color:#c0392b;}
+table{width:100%;min-width:1500px;border-collapse:collapse;background:var(--nd-white);table-layout:fixed;}
+thead th{
+  background:var(--nd-dark);color:var(--nd-white);
+  padding:8px 9px;text-align:left;font-size:10px;font-weight:700;
+  letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;
+  cursor:pointer;user-select:none;
+  position:sticky;top:0;z-index:10;
+}
+thead th:hover{background:#4a4847;}
+thead th.sort-asc::after{content:" ↑";color:var(--nd-blue);}
+thead th.sort-desc::after{content:" ↓";color:var(--nd-blue);}
+tbody tr{border-bottom:1px solid var(--nd-pale);}
+tbody tr:hover{background:#f4f8fd;}
+tbody tr.high-priority{background:#dcecfb;box-shadow:inset 3px 0 0 0 var(--nd-blue);}
+tbody tr.high-priority:hover{background:#cce3f8;}
+tbody tr.hidden{display:none;}
+tbody tr.dragging{opacity:.35;}
+tbody tr.drag-over{box-shadow:inset 0 2px 0 0 var(--nd-blue);}
+td{padding:6px 9px;font-size:12px;vertical-align:middle;}
+.td-grip{width:22px;text-align:center;padding:4px 3px !important;cursor:grab;}
+.td-grip:active{cursor:grabbing;}
+.grip-icon{color:var(--nd-light);font-size:14px;line-height:1;user-select:none;display:block;}
+
+/* editable cells */
+td.editable{cursor:text;outline:none;transition:background .1s;}
+td.editable:focus{
+  background:#fff;
+  outline:none;
+  box-shadow:inset 0 0 0 2px var(--nd-blue);
+  border-radius:3px;
+  z-index:2;
+  position:relative;
+}
+.proj-name:focus{
+  outline:none;
+  box-shadow:inset 0 0 0 2px var(--nd-blue);
+  border-radius:3px;
+  background:#fff;
+}
+
+/* ── SELECT CELLS ── */
+.sel-wrap{position:relative;display:flex;align-items:center;}
+select.nd-sel{
+  appearance:none;-webkit-appearance:none;
+  background:transparent;border:none;outline:none;
+  font-family:var(--nd-font);font-size:12px;font-weight:600;
+  padding:2px 18px 2px 0;cursor:pointer;color:var(--nd-dark);
+  width:100%;
+}
+select.nd-sel:focus{color:var(--nd-blue);}
+select.nd-sel.stage-sel{font-size:10px;font-weight:700;padding-right:14px;}
+select.nd-sel.fund-sel{text-align:center;text-align-last:center;padding:2px 0;}
+.sel-arrow{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  pointer-events:none;color:var(--nd-mid);font-size:9px;
+}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;}
+/* Stage */
+.b-active{background:#4891DC;color:#fff;}
+.b-submitted{background:#e3f2fd;color:#1565c0;}
+.b-under-review{background:#fff3cd;color:#856404;}
+.b-under-agreement{background:#e8f5e9;color:#2e7d32;}
+.b-on-hold{background:#fff9e6;color:#b8860b;}
+.b-passed{background:#fde8e8;color:#c0392b;}
+/* Phase distribution stat box */
+.stat-phases{flex:3 0 290px;display:flex;flex-direction:column;}
+.phases-body{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.phase-counts{display:flex;margin-bottom:2px;}
+.ph-cnt-seg{overflow:hidden;white-space:nowrap;font-size:11px;font-weight:700;text-align:left;padding-left:3px;transition:width .4s ease;min-width:0;line-height:1;}
+.phase-bar-wrap{margin:0;}
+.phase-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--nd-pale);}
+.ph-seg{height:100%;min-width:0;transition:width .4s ease;}
+.ph-seg-ts{background:#3949ab;}
+.ph-seg-psa{background:#2e7d32;}
+.ph-seg-dd{background:#f57f17;}
+.ph-seg-design{background:#00838f;}
+.ph-seg-permit{background:#c62828;}
+.ph-seg-none{background:var(--nd-light);}
+.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 6px;}
+.ph-item{display:flex;align-items:center;gap:4px;}
+.ph-dot{width:7px;height:7px;border-radius:1px;flex-shrink:0;}
+.ph-dot-ts{background:#3949ab;}
+.ph-dot-psa{background:#2e7d32;}
+.ph-dot-dd{background:#f57f17;}
+.ph-dot-design{background:#00838f;}
+.ph-dot-permit{background:#c62828;}
+.ph-dot-none{background:var(--nd-light);}
+.ph-n{font-size:14px;font-weight:700;color:var(--nd-dark);line-height:1;}
+.ph-lbl{font-size:9px;color:var(--nd-mid);text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.phase-labels{display:flex;margin-top:2px;}
+.ph-lbl-seg{overflow:hidden;white-space:nowrap;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:width .4s ease;min-width:0;padding-left:3px;}
+/* Phase (active sub-status) */
+.stage-cell{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;}
+.b-phase-ts{background:#e8eaf6;color:#3949ab;}
+.b-phase-psa{background:#e8f5e9;color:#2e7d32;}
+.b-phase-dd{background:#fff8e1;color:#f57f17;}
+.b-phase-design{background:#e0f7fa;color:#00838f;}
+.b-phase-permit{background:#fce4ec;color:#c62828;}
+.b-phase-closing{background:#e8f5e9;color:#1b5e20;}
+/* Asset */
+.b-sh{background:#ede7f6;color:#4a235a;}
+.b-mf{background:#e3f2fd;color:#1565c0;}
+.b-ind{background:#e8eaf6;color:#283593;}
+.b-off{background:#e0f2f1;color:#00695c;}
+.b-med{background:#fce4ec;color:#880e4f;}
+.b-lab{background:#f3e5f5;color:#6a1b9a;}
+.b-oth{background:#fafafa;color:#616161;}
+/* Deal */
+.b-acq{background:#e8f5e9;color:#1b5e20;}
+.b-dev{background:#fff8e1;color:#e65100;}
+/* Priority */
+.b-high{background:#fde8e8;color:#c0392b;}
+.b-med-p{background:#fff3cd;color:#856404;}
+.b-low{background:#e8f5e9;color:#27ae60;}
+.priority-btn{
+  background:none;border:none;cursor:pointer;padding:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:46px;
+}
+.priority-btn .badge{pointer-events:none;}
+.priority-btn.empty .badge{
+  background:var(--nd-pale);color:var(--nd-mid);letter-spacing:.5px;
+}
+
+/* ── PROJECT LINK ── */
+.proj-name{font-weight:600;color:var(--nd-blue);cursor:text;outline:none;display:block;min-width:160px;}
+.td-folder{width:40px;text-align:center;padding:4px 6px !important;}
+.folder-btn{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:3px;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
+.folder-btn svg{width:18px;height:18px;stroke:var(--nd-mid);transition:stroke .15s;}
+.folder-btn:hover svg{stroke:var(--nd-blue);}
+.td-loc{min-width:130px;color:var(--nd-mid);font-size:11px;}
+.td-comments{min-width:200px;max-width:300px;font-size:11px;color:#555;}
+.td-num{text-align:center;min-width:28px;color:var(--nd-light);font-size:11px;}
+.td-money{text-align:right;white-space:nowrap;font-size:11px;font-variant-numeric:tabular-nums;}
+
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-radius:6px;padding:24px;max-width:500px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal h3{font-size:14px;font-weight:700;margin-bottom:10px;}
+.modal-note{font-size:11px;color:var(--nd-mid);margin-bottom:10px;}
+.modal-path{background:var(--nd-pale);border:1px solid var(--nd-light);border-radius:3px;padding:8px 10px;font-family:monospace;font-size:11px;word-break:break-all;margin-bottom:10px;}
+.modal input{width:100%;padding:7px 9px;border:1px solid var(--nd-light);border-radius:3px;font-size:12px;font-family:monospace;margin-bottom:12px;outline:none;}
+.modal input:focus{border-color:var(--nd-blue);}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+
+/* ── ROW COUNTER ── */
+.row-count{font-size:11px;color:var(--nd-mid);margin:6px 24px 0;text-align:right;}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:36px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--nd-dark);color:#fff;
+  padding:14px 28px;border-radius:8px;
+  font-size:15px;font-weight:600;letter-spacing:.2px;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
+  z-index:999;white-space:nowrap;max-width:90vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast .toast-tip{display:none;}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:14px;font-size:10px;color:var(--nd-mid);border-top:1px solid var(--nd-pale);background:var(--nd-white);margin-top:8px;}
+
+@media(max-width:800px){
+  .hdr{padding:0 12px;}
+  .hdr-title{display:none;}
+  .hdr-right .btn-outline,
+  .hdr-right .btn-blue{display:none;}
+  .stats{
+    flex-wrap:nowrap;overflow-x:auto;padding:10px 12px;gap:10px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .stat{flex:0 0 150px;min-width:150px;}
+  .stat-vc{flex:0 0 150px;min-width:150px;}
+  .stat-stages{flex:0 0 170px;min-width:170px;}
+  .stat-chart{flex:0 0 150px;min-width:150px;}
+  .stat-tug{flex:0 0 160px;min-width:160px;}
+  .stat-phases{flex:0 0 220px;min-width:220px;}
+  .filter-bar{
+    flex-direction:column;align-items:stretch;gap:8px;
+    padding:8px 0;
+  }
+  .filter-group{
+    display:flex;align-items:center;gap:8px;
+    border-radius:0;border:none;border-bottom:1px solid var(--nd-pale);
+    background:transparent;padding:6px 12px;
+    width:100%;min-width:0;
+  }
+  .filter-label{
+    flex-shrink:0;border-right:1px solid var(--nd-pale);padding-right:8px;
+  }
+  .chip-scroll{
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap;padding-bottom:2px;
+    min-width:0;flex:1 1 auto;
+  }
+  .filter-sep{display:none;}
+  .search-wrap{display:none;}
+  .tbl-outer{padding:0 12px 16px;}
+}
+
+/* ── MOBILE DEAL CARDS ── */
+.deal-cards{display:flex;flex-direction:column;gap:8px;padding:4px 0;}
+.deal-card{
+  background:#fff;border:1px solid var(--nd-pale);border-radius:8px;
+  padding:0;position:relative;overflow:hidden;
+}
+.deal-card.dragging{opacity:.4;}
+.deal-card.high-priority{background:#dcecfb;border-color:var(--nd-blue);box-shadow:inset 3px 0 0 0 var(--nd-blue);}
+.deal-card-hdr{
+  display:flex;justify-content:space-between;align-items:center;gap:4px;
+  padding:6px 10px 6px 6px;
+}
+.deal-card-expand-btn{
+  background:none;border:none;color:var(--nd-mid);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;width:40px;height:40px;border-radius:6px;
+  transition:transform .2s ease,background .15s;
+}
+.deal-card-expand-btn:active{background:var(--nd-pale);}
+.deal-card.expanded .deal-card-expand-btn{transform:rotate(180deg);}
+.deal-card-name{font-weight:700;color:var(--nd-blue);font-size:14px;line-height:1.3;}
+.deal-card-loc{font-size:11px;color:var(--nd-mid);margin-top:2px;}
+.deal-card-del{background:none;border:none;color:#c0392b;font-size:15px;cursor:pointer;padding:8px 8px;flex-shrink:0;}
+.deal-card-body{
+  max-height:0;overflow:hidden;transition:max-height .2s ease;
+  padding:0 14px;
+}
+.deal-card.expanded .deal-card-body{
+  max-height:600px;padding:0 14px 14px;
+}
+.deal-card-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.deal-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;}
+.deal-card-field{display:flex;flex-direction:column;gap:1px;}
+.deal-card-field-lbl{font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--nd-mid);font-weight:700;}
+.deal-card-field-val{color:var(--nd-dark);}
+.deal-card-money{font-weight:700;color:var(--nd-blue);}
+.deal-card-comments{margin-top:8px;padding-top:8px;border-top:1px solid var(--nd-pale);font-size:11px;color:#555;}
+.deal-card-folder{position:absolute;top:8px;right:38px;background:none;border:none;cursor:pointer;padding:6px;z-index:2;}
+.deal-card-folder svg{width:15px;height:15px;stroke:var(--nd-mid);}
+.mobile-stage-drop{text-align:center;padding:14px;font-size:11px;color:var(--nd-light);font-style:italic;border:2px dashed var(--nd-pale);border-radius:8px;margin-top:4px;}
+.mobile-stage-drop.drag-over{background:#f4f8fd;color:var(--nd-blue);border-color:var(--nd-blue);}
+</style>
+</head>
+<body>
+
+<!-- ADD DEAL MODAL -->
+<div id="add-deal-overlay">
+  <div id="add-deal-modal">
+    <div class="adm-hdr">
+      <span class="adm-hdr-title">Add New Deal</span>
+      <button class="adm-close" onclick="closeAddDeal()">✕</button>
+    </div>
+    <div class="adm-body">
+      <!-- Stage selector -->
+      <div class="adm-label" style="margin-bottom:6px;">Stage</div>
+      <div class="adm-stage-strip">
+        <button class="adm-stage-btn" data-stage="ACTIVE" onclick="selectAdmStage(this)">Active</button>
+        <button class="adm-stage-btn" data-stage="SUBMITTED" onclick="selectAdmStage(this)">Submitted</button>
+        <button class="adm-stage-btn" data-stage="UNDER REVIEW" onclick="selectAdmStage(this)">Under Review</button>
+        <button class="adm-stage-btn" data-stage="UNDER AGREEMENT" onclick="selectAdmStage(this)">Under Agreement</button>
+        <button class="adm-stage-btn" data-stage="ON HOLD" onclick="selectAdmStage(this)">On Hold</button>
+        <button class="adm-stage-btn" data-stage="PASSED" onclick="selectAdmStage(this)">Passed</button>
+        <button class="adm-stage-btn" data-stage="" onclick="selectAdmStage(this)">No Stage</button>
+      </div>
+      <!-- Fields grid -->
+      <div class="adm-grid">
+        <div class="adm-field full">
+          <label class="adm-label">Property Name</label>
+          <input class="adm-input" id="adm-name" type="text" placeholder="e.g. 123 Main Street">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Location</label>
+          <input class="adm-input" id="adm-location" type="text" placeholder="City, State">
+        </div>
+        <div class="adm-field adm-phase-row" id="adm-phase-wrap">
+          <label class="adm-label">Phase</label>
+          <select class="adm-select" id="adm-phase">
+            <option value="">— None —</option>
+            <option value="TS">TS</option>
+            <option value="PSA">PSA</option>
+            <option value="DD">DD</option>
+            <option value="DESIGN">Design</option>
+            <option value="PERMIT">Permit</option>
+          </select>
+        </div>
+        <div class="adm-field adm-phase-row" id="adm-criticaldate-wrap">
+          <label class="adm-label">Key Date</label>
+          <input class="adm-input" id="adm-criticaldate" type="date">
+        </div>
+        <div class="adm-field adm-phase-row" id="adm-icdate-wrap">
+          <label class="adm-label">IC Date</label>
+          <input class="adm-input" id="adm-icdate" type="date">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Asset Type</label>
+          <select class="adm-select" id="adm-asset">
+            <option value="">—</option>
+            <option value="MF">MF</option>
+            <option value="SH">SH</option>
+            <option value="IND">IND</option>
+            <option value="OFF">OFF</option>
+            <option value="MED">MED</option>
+            <option value="LAB">LAB</option>
+            <option value="OTH">OTH</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Deal Type</label>
+          <select class="adm-select" id="adm-deal">
+            <option value="">—</option>
+            <option value="ACQ">ACQ</option>
+            <option value="DEV">DEV</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Priority</label>
+          <select class="adm-select" id="adm-priority">
+            <option value="">—</option>
+            <option value="High">High</option>
+            <option value="Med">Med</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Acq Lead</label>
+          <input class="adm-input" id="adm-acqLead" type="text">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Dev Lead</label>
+          <input class="adm-input" id="adm-devLead" type="text">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Analyst</label>
+          <input class="adm-input" id="adm-analyst" type="text">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Size</label>
+          <input class="adm-input" id="adm-size" type="text" placeholder="Units or SF">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Fund</label>
+          <select class="adm-input" id="adm-fundNum">
+            <option value="">—</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Value / Cost</label>
+          <input class="adm-input" id="adm-valueCost" type="text" placeholder="$0,000,000">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">Fund Equity</label>
+          <input class="adm-input" id="adm-fund5equity" type="text" placeholder="$0,000,000">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label">CoDev/GP Equity</label>
+          <input class="adm-input" id="adm-gpEquity" type="text" placeholder="$0,000,000">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label">Next Steps</label>
+          <textarea class="adm-textarea" id="adm-comments" placeholder="Notes, next steps…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="adm-footer">
+      <button class="btn btn-ghost" onclick="closeAddDeal()">Cancel</button>
+      <button class="btn btn-blue" onclick="submitAddDeal()">Add Deal</button>
+    </div>
+  </div>
+</div>
+
+<!-- IC DATE POPUP -->
+<div id="icdate-popup">
+  <input type="date" id="icdate-input" onchange="applyIcDate(this.value)">
+  <div class="icdate-popup-btns">
+    <button class="btn-tbd" onclick="applyIcDate('TBD')">TBD</button>
+    <button class="btn-clear" onclick="applyIcDate('')">Clear</button>
+  </div>
+</div>
+
+<!-- CRITICAL DATE POPUP -->
+<div id="criticaldate-popup">
+  <input type="date" id="criticaldate-input" onchange="applyCriticalDate(this.value)">
+  <div class="icdate-popup-btns">
+    <button class="btn-tbd" onclick="applyCriticalDate('TBD')">TBD</button>
+    <button class="btn-clear" onclick="applyCriticalDate('')">Clear</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="nd-pent">ND</div>
+      <div class="nd-wm"><div class="top">National</div><div class="bot">Development</div></div>
+    </div>
+    <div class="hdr-title">Acquisitions Pipeline Tracker</div>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-date" id="hdr-date"></span>
+    <button class="btn btn-outline" onclick="printDashboard()">🖨 Print</button>
+    <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-outline" onclick="openChangeLog()">📋 Change Log</button>
+    <button class="btn btn-blue" onclick="saveAll()" style="display:inline-flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#7fff7f"/></svg> SharePoint Sync</button>
+  </div>
+</header>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat hl">
+    <div class="stat-lbl">Staged Pipeline</div>
+    <div class="stat-val" id="staged-total">—</div>
+    <div class="stat-sub">Active, Submitted &amp; Under Review</div>
+  </div>
+  <div class="stat stat-vc">
+    <div class="stat-lbl">Pipeline Value / Cost</div>
+    <div class="stat-val" id="active-vc-val">—</div>
+    <div class="stat-sub">Active, Submitted &amp; Under Agreement</div>
+    <div class="stat-lbl" style="margin-top:8px;">Fund Equity</div>
+    <div class="stat-val" id="active-fundeq-val" style="font-size:18px;">—</div>
+    <div class="stat-sub">Active, Submitted &amp; Under Agreement</div>
+  </div>
+  <div class="stat stat-stages">
+    <div class="stat-lbl">Stage Breakdown</div>
+    <div class="stages-bar-wrap">
+      <div class="stages-bar">
+        <div class="seg seg-active" id="seg-active"></div>
+        <div class="seg seg-submitted" id="seg-submitted"></div>
+        <div class="seg seg-review" id="seg-review"></div>
+      </div>
+    </div>
+    <div class="stages-legend">
+      <div class="stage-leg-item">
+        <span class="stage-dot dot-active"></span>
+        <span class="stage-leg-n" id="stage-n-active">—</span>
+        <span class="stage-leg-lbl">Active</span>
+        <span class="stage-leg-pct" id="stage-pct-active"></span>
+      </div>
+      <div class="stage-leg-item">
+        <span class="stage-dot dot-submitted"></span>
+        <span class="stage-leg-n" id="stage-n-submitted">—</span>
+        <span class="stage-leg-lbl">Submitted</span>
+        <span class="stage-leg-pct" id="stage-pct-submitted"></span>
+      </div>
+      <div class="stage-leg-item">
+        <span class="stage-dot dot-review"></span>
+        <span class="stage-leg-n" id="stage-n-review">—</span>
+        <span class="stage-leg-lbl">Under Review</span>
+        <span class="stage-leg-pct" id="stage-pct-review"></span>
+      </div>
+    </div>
+  </div>
+  <div class="stat stat-chart">
+    <div class="stat-lbl">Asset Class Mix</div>
+    <div class="chart-body-wrap">
+      <div class="chart-body">
+        <svg id="asset-pie" width="96" height="96" viewBox="0 0 96 96"></svg>
+        <div id="asset-legend"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stat stat-tug" id="tug-box">
+    <div class="stat-lbl">Acq vs Dev · Staged Deals</div>
+    <div class="tug-body">
+      <div class="tug-counts">
+        <span class="tug-acq">ACQ <span id="tug-acq-n">—</span></span>
+        <span class="tug-dev">DEV <span id="tug-dev-n">—</span></span>
+      </div>
+      <div class="tug-track">
+        <div class="tug-fill" id="tug-fill"></div>
+        <div class="tug-flag" id="tug-flag"></div>
+      </div>
+      <div class="tug-pcts">
+        <span id="tug-acq-pct" class="tug-acq">—</span>
+        <span id="tug-dev-pct" class="tug-dev">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="stat stat-phases">
+    <div class="stat-lbl">Active Deal Phases</div>
+    <div class="phases-body">
+      <div class="phase-counts">
+        <div class="ph-cnt-seg" id="ph-cnt-ts"></div>
+        <div class="ph-cnt-seg" id="ph-cnt-psa"></div>
+        <div class="ph-cnt-seg" id="ph-cnt-dd"></div>
+        <div class="ph-cnt-seg" id="ph-cnt-design"></div>
+        <div class="ph-cnt-seg" id="ph-cnt-permit"></div>
+        <div class="ph-cnt-seg" id="ph-cnt-none"></div>
+      </div>
+      <div class="phase-bar-wrap">
+        <div class="phase-bar" id="phase-bar">
+          <div class="ph-seg ph-seg-ts" id="ph-seg-ts"></div>
+          <div class="ph-seg ph-seg-psa" id="ph-seg-psa"></div>
+          <div class="ph-seg ph-seg-dd" id="ph-seg-dd"></div>
+          <div class="ph-seg ph-seg-design" id="ph-seg-design"></div>
+          <div class="ph-seg ph-seg-permit" id="ph-seg-permit"></div>
+          <div class="ph-seg ph-seg-none" id="ph-seg-none"></div>
+        </div>
+      </div>
+      <div class="phase-labels">
+        <div class="ph-lbl-seg" id="ph-lbl-ts"></div>
+        <div class="ph-lbl-seg" id="ph-lbl-psa"></div>
+        <div class="ph-lbl-seg" id="ph-lbl-dd"></div>
+        <div class="ph-lbl-seg" id="ph-lbl-design"></div>
+        <div class="ph-lbl-seg" id="ph-lbl-permit"></div>
+        <div class="ph-lbl-seg" id="ph-lbl-none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <div class="filter-group">
+    <span class="filter-label">Stage</span>
+    <div class="chip-scroll">
+      <button class="chip" data-filter="stage" data-val="ACTIVE" onclick="toggleChip(this)">ACTIVE</button>
+      <button class="chip" data-filter="stage" data-val="SUBMITTED" onclick="toggleChip(this)">SUBMITTED</button>
+      <button class="chip" data-filter="stage" data-val="UNDER REVIEW" onclick="toggleChip(this)">UNDER REVIEW</button>
+      <button class="chip" data-filter="stage" data-val="UNDER AGREEMENT" onclick="toggleChip(this)">UNDER AGREEMENT</button>
+      <button class="chip" data-filter="stage" data-val="ON HOLD" onclick="toggleChip(this)">ON HOLD</button>
+      <button class="chip" data-filter="stage" data-val="PASSED" onclick="toggleChip(this)">PASSED</button>
+    </div>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="filter-group">
+    <span class="filter-label">Asset</span>
+    <div class="chip-scroll">
+      <button class="chip" data-filter="asset" data-val="MF" onclick="toggleChip(this)">MF</button>
+      <button class="chip" data-filter="asset" data-val="SH" onclick="toggleChip(this)">SH</button>
+      <button class="chip" data-filter="asset" data-val="IND" onclick="toggleChip(this)">IND</button>
+      <button class="chip" data-filter="asset" data-val="OFF" onclick="toggleChip(this)">OFF</button>
+      <button class="chip" data-filter="asset" data-val="MED" onclick="toggleChip(this)">MED</button>
+      <button class="chip" data-filter="asset" data-val="LAB" onclick="toggleChip(this)">LAB</button>
+      <button class="chip" data-filter="asset" data-val="OTH" onclick="toggleChip(this)">OTH</button>
+    </div>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="filter-group">
+    <span class="filter-label">Deal</span>
+    <div class="chip-scroll">
+      <button class="chip" data-filter="deal" data-val="ACQ" onclick="toggleChip(this)">ACQ</button>
+      <button class="chip" data-filter="deal" data-val="DEV" onclick="toggleChip(this)">DEV</button>
+      <button class="chip" data-filter="deal" data-val="" onclick="toggleChip(this)">NONE</button>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input class="search" type="text" id="searchBox" placeholder="Search all deals…" oninput="applyFilters()">
+    <button class="btn btn-ghost" onclick="clearFilters()" style="font-size:11px;">✕ Clear Filters</button>
+  </div>
+</div>
+
+<div class="row-count" id="rowCount"></div>
+
+<!-- STAGE SECTIONS -->
+<div class="tbl-outer" id="tables-outer" style="margin-top:8px;"></div>
+
+<!-- TOAST -->
+<div id="toast"><span id="toastMsg"></span><span class="toast-tip" id="toastTip"></span></div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span style="font-weight:700;letter-spacing:1px;text-transform:uppercase;">National Development</span>
+  &nbsp;·&nbsp; Pipeline Tracker &nbsp;·&nbsp; Confidential — Internal Use Only
+</div>
+
+<!-- PATH MODAL -->
+<div class="overlay" id="pathModal">
+  <div class="modal">
+    <h3>Edit Project Folder Path</h3>
+    <div class="modal-note">Edit the folder path for this project, then save.</div>
+    <input type="text" id="modalPathInput" placeholder="Enter folder path…">
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-blue" onclick="saveModalPath()" style="background:#27ae60;display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Path</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="overlay" id="delConfirmOverlay">
+  <div class="modal" style="max-width:360px;">
+    <h3 style="color:#c0392b;">Move deal to Passed?</h3>
+    <div class="modal-note">This will move <strong id="delConfirmName" style="color:var(--nd-dark);"></strong> to the Passed stage. You can move it back anytime using the Stage dropdown.</div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="cancelDelete()">Cancel</button>
+      <button class="btn" style="background:#c0392b;color:#fff;" onclick="confirmDelete()">Move to Passed</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE LOG MODAL -->
+<div class="overlay" id="changeLogOverlay">
+  <div class="modal" style="max-width:600px;max-height:80vh;display:flex;flex-direction:column;">
+    <h3>Change Log</h3>
+    <div class="modal-note">Recent changes made to the pipeline — useful for tracking down accidental edits or deletions.</div>
+    <div id="changeLogList" style="overflow-y:auto;flex:1;border:1px solid var(--nd-pale);border-radius:4px;margin-bottom:12px;"></div>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeChangeLog()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD GATE REMOVED — MSAL handles authentication -->
+
+<script>
+// ══════════════════════════════════════════════
+// DATA — must be defined first
+// ══════════════════════════════════════════════
+const RAW = {"rows":[["I","","BSL @ East Brunswick","East Brunswick, NJ","ACTIVE","DESIGN","SH","DEV","High","CL","NM","KM","PSA, CSA","4/1/2026","87","$54,000,000","Closing 5/27","$7,560,000","2026-05-01"],["I","","BSL @ East Islip","East Islip, NY","ACTIVE","PERMIT","SH","DEV","High","PM","KS","JP","PSA, CSA","6/1/2026","90","$63,000,000","Debt; IC memo; LMI; closing; IC meeting (w/ WDBRY)","$8,820,000","2026-05-01"],["I","","Benchmark Woodbury","Woodbury, NY","ACTIVE","PSA","SH","ACQ","High","CL","N/A","WD","LOI","6/15/2026","89 units","$62,500,000","DD; PSA; debt; IDA","$9,843,750","TBD"],["I","","208-220 North Main Street","Natick, MA","ACTIVE","PERMIT","SH","DEV","High","CL","KS","KM","PSA, CSA","7/30/2026","7.5 acres","$75,000,000","Design; 12/2026 close","$10,500,000","2026-02-27"],["I","","299 Salem Street","Marblehead, MA","ACTIVE","PSA","MF","DEV","High","PM","TBD","KM","TS","10/1/2026","140","$63,000,000","Work on non-contingent deal","$17,640,000","TBD"],["I","","BSL @ Dix Hills","Dix Hills, NY","ACTIVE","DD","SH","DEV","High","PM","MS","TBD","-","4/1/2027","100","$70,000,000","BSL and ND working through permitting issues","$9,800,000","TBD"],["I","","591 Washington St","Wrentham, MA","ACTIVE","PERMIT","IND","DEV","High","PM","DM","TBD","PSA","5/1/2026","180,000","$37,000,000","Awaiting MDOT response","$11,840,000","TBD"],["I","","Chappaqua Crossing","Chappaqua, NY","ACTIVE","DD","SH","DEV","High","CL","TBD","KM","PSA","1/1/2029","110","$77,000,000","DD; Condo Docs; Construction Agrmt; Town Meeting","$10,780,000","TBD"],["II","","Church Hill Village Expansion","Newtown, CT","SUBMITTED","","SH","DEV","Med","CL","RM","JP","","","","$1,500,000","","",""],["II","","Rocky Hill Amesbury","Amesbury, MA","SUBMITTED","","MF","DEV","Low","CL","TBD","KM","","","","$116,000,000","","",""],["III","","346 University","Westwood, MA","UNDER REVIEW","","IND","ACQ","Med","PM","TBD","TBD","","","","","","",""],["III","","Shoregate","Bay Shore, NY","UNDER REVIEW","","MF","ACQ","High","TBD","TBD","TBD","","","418","$215,000,000","","",""],["III","","New Village","Patchogue, NY","UNDER REVIEW","","MF","ACQ","Med","TBD","TBD","JP","","","291","$125,000,000","","",""],["III","","Shipyard","Port Jefferson, NY","UNDER REVIEW","","MF","ACQ","Med","TBD","TBD","JP","","","","","","",""],["III","","The Raye by Vermella","New Brunswick, NJ","UNDER REVIEW","","MF","ACQ","Low","TBD","TBD","GR","","","","","","",""],["III","","KKR Maine","Portland/Bangor, ME","UNDER REVIEW","","SH","ACQ","Low","CL","--","TBD","","","","","","",""],["III","","Cornerstone of Weymouth","Weymouth, MA","UNDER REVIEW","","SH","ACQ","Med","CL","--","KM","","","","$60,000,000","","",""],["IV","","850 Main Street","Wilmington, MA","UNDER REVIEW","","IND","DEV","Med","CL","TBD","TBD","","","","","","",""],["IV","","375/385 Concord Ave","Belmont, MA","UNDER REVIEW","","SH","DEV","Med","CL","TBD","TBD","","","","","","",""],["IV","","25 Hillside","Old Westbury, NY","UNDER REVIEW","","SH","DEV","Med","CL","TBD","TBD","","","","","","",""],["IV","","The District","Burlington, MA","UNDER REVIEW","","SH","DEV","Med","CL","TBD","WD","","","","","","",""],["IV","","Westchester Crossing","Port Chester, NY","UNDER REVIEW","","SH","DEV","Med","TBD","TBD","TBD","","","","","","",""],["IV","","Edge on Hudson","Sleepy Hollow, NY","UNDER REVIEW","","SH","DEV","Med","TBD","TBD","KM","","","","","","",""],["IV","","420 Bedford Street","Lexington, MA","UNDER REVIEW","","SH","DEV","Med","TBD","TBD","TBD","","","","","","",""],["IV","","130 Haven Street","Dedham, MA","UNDER REVIEW","","SH","DEV","Low","CL","TBD","TBD","","","","$17,000,000","","",""],["IV","","Global Burlington","Burlington, VT","UNDER REVIEW","","SH","DEV","Low","PM","TBD","TBD","","","","","","",""],["IV","","11242 Waples Mill Rd","Fairfax, VA","UNDER REVIEW","","SH","DEV","Low","PM","TBD","TBD","","","","","","",""],["IV","","2847 Wilson Blvd","Arlington, VA","UNDER REVIEW","","SH","DEV","Low","PM","TBD","TBD","","","","","","",""],["IV","","Hilton Rye Brook","Rye Brook, NY","UNDER REVIEW","","SH","DEV","Low","PM","TBD","KM","","","","","","",""],["IV","","7 Liberty Lane","Norfolk, MA","UNDER REVIEW","","SH","DEV","Low","TBD","TBD","TBD","","","","","","",""],["IV","","Market Sq. Architects Site","Lebanon, NH","UNDER REVIEW","","SH","DEV","Low","TBD","TBD","TBD","","","","","","",""],["IV","","Morris Hills Shopping Center","Parsippany, NJ","UNDER REVIEW","","MF","DEV","High","TBD","TBD","All","","","","","","",""],["IV","","123 Anderson St","Hackensack, NJ","UNDER REVIEW","","MF","DEV","High","TBD","TBD","WD","","","","","","",""],["IV","","Osgood Street (China Blossom)","North Andover, MA","UNDER REVIEW","","MF","DEV","","TBD","TBD","TBD","","","","","","",""],["IV","","Jones Street Site","Exteter NH","UNDER REVIEW","","MF","DEV","","TBD","TBD","GR","","","","","","",""],["IV","","Tuscan Village","Salem, NH","UNDER REVIEW","","MF","DEV","","CL","TBD","JP","","","","","","",""],["IV","","10 W Main Street","Bergenfield, NJ","UNDER REVIEW","","MF","DEV","","TBD","TBD","TBD","","","","","","",""],["IV","","257 Main Street","Hempstead, NY","UNDER REVIEW","","MF","DEV","","TBD","TBD","JP","","","","","","",""],["IV","","331 Concord Ave","Lexington, MA","UNDER REVIEW","","MF","DEV","","CL","TBD","KM","","","","","","",""],["IV","","Mamaroneck","Mamaroneck, NY","UNDER REVIEW","","MF","DEV","","TBD","TBD","All","2314","","","","","",""],["IV","","Bay Shore","Bay Shore, NY","UNDER REVIEW","","MF","DEV","","TBD","TBD","All","2314","","","","","",""],["IV","","1265 Main Street","Waltham, MA","UNDER REVIEW","","MF","DEV","","PM","TBD","KM","2314","","","","","",""],["IV","","Talbot's Site","Hingham, MA","UNDER REVIEW","","SH","DEV","","CL","TBD","TBD","2316","","","","","",""],["IV","","63 Nahatan","Norwood, MA","UNDER REVIEW","","SH","DEV","","PM","TBD","TBD","2316","","","","","",""],["IV","","Preakness Shopping Center","Wayne, NJ","UNDER REVIEW","","MF","DEV","","PM","TBD","TBD","2316","","","","","",""],["IV","","31 St James","Boston, MA","UNDER REVIEW","","OFF","ACQ","","PM","TBD","TBD","2316","","","","","",""],["IV","","The Landing at Mill Brook","Billerica, MA","UNDER REVIEW","","OTH","DEV","","PM","TBD","TBD","2316","","","","","",""],["V","","224 & 244 Great Road","Littleton, MA","","","SH","DEV","","PM","TBD","TBD","2314","","","","","",""],["V","","Fox Run Mall","Portsmouth, NH","","","OTH","DEV","","CL","TBD","TBD","","","","","Costco (pad sale); GL Walmart","",""],["V","","Westwood Plaza","Westwood, NJ","","","SH","DEV","","PM","TBD","TBD","2314","","","","","",""],["V","","526 Main Street","Acton, MA","","","MF","DEV","","CL","TBD","TBD","","","","","","",""],["V","","Tuscan Village","Salem, NH","","","MF","DEV","","CL","TBD","JP","","","","","","",""],["V","","257 Main Street","Hempstead, NY","","","MF","DEV","","TBD","TBD","JP","","","","","","",""],["V","","331 Concord Ave","Lexington, MA","","","MF","DEV","","CL","TBD","KM","","","","","","",""],["V","","BSL @ Long Hill","Long Hill, NJ","","","SH","DEV","","PM","TBD","JP","PSA","10/4/2026","100","$53,000,000","Walgreens","",""],["V","","BSL @ Old Tappan","Old Tappan, NJ","","","SH","DEV","","CL","TBD","KM","PSA","11/10/2026","83","$57,000,000","Out of contract; CSH put deal u/a","",""],["VI","","25 Research Drive","Westborough, MA","","","SH","DEV","","PM","TBD","TBD","2314","","","","","",""],["VI","","2195 Day Hill Road","Windsor, CT","","","IND","DEV","","PM","TBD","KM","","","","","","",""],["VI","","Raynham Dog Track","Raynham, MA","","","IND","DEV","","TBD","TBD","TBD","","","","$25,000,000","$58M allocated loan balance (includes sports book)","",""]],"cols":["section","subsection","name","location","stage","phase","asset","deal","priority","acqLead","devLead","analyst","docStatus","closeDate","size","valueCost","comments","fund5equity","icDate"],"labels":{"section":"Section","subsection":"Sub-Type","name":"Property Name","location":"Location","stage":"Stage","asset":"Asset","deal":"Deal","priority":"Priority","acqLead":"Acq Lead","devLead":"Dev Lead","analyst":"Analyst","docStatus":"Doc Status","closeDate":"Close Date","size":"Size","valueCost":"Value / Cost","comments":"Next Steps","phase":"Phase","fund5equity":"Fund Equity","fundNum":"Fund","gpEquity":"CoDev/GP Equity","icDate":"IC Date","criticalDate":"Key Date","stage":"Stage"},"paths":{"0":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\NJ_East Brunswick - 566 Ryders Ln","1":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\NY_East Islip_117 East Main St","3":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Active\\Natick_North Main St","4":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\MA_Marblehead_Tedesco Site","5":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\NY_Dix Hills_140 Half Hollow Road","6":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\MA_Wrentham_591 Washington St","7":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\NY_Chappaqua_Chappaqua Crossing","8":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Active\\Newtown_Church Hill Village","9":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\MA_Amesbury_Rocky Hill","11":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Residential\\NY_Bay Shore_Shoregate","12":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Residential\\NY_Patchogue_New Village","37":"\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\Development\\NY_Hempstead_257 Main St"}};
+
+const STAGE_CYCLE = ["","ACTIVE","SUBMITTED","UNDER REVIEW","UNDER AGREEMENT","ON HOLD","PASSED"];
+const STAGE_CLS   = {"ACTIVE":"b-active","SUBMITTED":"b-submitted","UNDER REVIEW":"b-under-review","UNDER AGREEMENT":"b-under-agreement","ON HOLD":"b-on-hold","PASSED":"b-passed","":"empty"};
+const PHASE_CYCLE = ["","TS","PSA","DD","DESIGN","PERMIT","CLOSING"];
+const PHASE_CLS   = {"TS":"b-phase-ts","PSA":"b-phase-psa","DD":"b-phase-dd","DESIGN":"b-phase-design","PERMIT":"b-phase-permit","CLOSING":"b-phase-closing","":"empty"};
+const ASSET_OPTS  = ["","MF","SH","IND","OFF","MED","LAB","OTH"];
+const DEAL_OPTS   = ["","ACQ","DEV"];
+const STAGE_OPTS  = ["ACTIVE","SUBMITTED","UNDER REVIEW","UNDER AGREEMENT","ON HOLD","PASSED"];
+const FUND_OPTS   = ["","5","6"];
+const BASE_PATH   = "\\\\natdev.lan\\active\\Departments\\_Assets\\_Prospective Deals\\000. Pipeline";
+const VIS_COLS    = ["fundNum","name","location","stage","phase","criticalDate","icDate","asset","deal","priority","acqLead","devLead","analyst","size","valueCost","fund5equity","gpEquity","comments"];
+const COL_WIDTHS  = {fundNum:"3%",name:"11%",location:"6%",stage:"5%",phase:"3.5%",criticalDate:"4%",icDate:"4%",asset:"4.5%",deal:"4.5%",priority:"4%",acqLead:"3.5%",devLead:"3.5%",analyst:"3.5%",size:"5.5%",valueCost:"6%",fund5equity:"6%",gpEquity:"6%"};
+
+let tableRows = [];
+let sortCol   = null;
+let sortDir   = "asc";
+let projPaths = {};
+let modalKey  = null;
+
+// ══════════════════════════════════════════════
+// MSAL + GRAPH API LAYER
+// ══════════════════════════════════════════════
+const MSAL_CONFIG = {
+  auth: {
+    clientId:    "0033cfad-c32b-40ff-b09d-9535b6dee673",
+    authority:   "https://login.microsoftonline.com/natdev0.onmicrosoft.com",
+    redirectUri: "https://jpappo4.github.io/nd-pipeline-tracker/redirect.html",
+  },
+  cache: { cacheLocation: "sessionStorage" }
+};
+
+const GRAPH_SCOPES  = ["https://graph.microsoft.com/Sites.ReadWrite.All", "User.Read", "Mail.Read"];
+const GRAPH_BASE    = "https://graph.microsoft.com/v1.0";
+const SP_SITE_HOST  = "natdev0.sharepoint.com";
+const SP_SITE_PATH  = "/sites/ClaudeTesting";
+const LIST_NAME     = "NDPipeline";
+const LOG_LIST_NAME = "NDPipelineLog";
+
+let _logListId    = null;
+let _anthropicKey = null;
+
+let _msalApp    = null;
+let _account    = null;
+let _siteId     = null;
+let _listId     = null;
+let _refreshTimer = null;
+let _lastSynced = null;
+
+// ── Init MSAL ──
+async function initMsal() {
+  await loadScript("https://unpkg.com/@azure/msal-browser@2.38.3/lib/msal-browser.min.js");
+  _msalApp = new msal.PublicClientApplication(MSAL_CONFIG);
+  await _msalApp.initialize();
+  // Handle redirect response — this completes any in-progress redirect login
+  const redirectResult = await _msalApp.handleRedirectPromise();
+  if (redirectResult) {
+    _account = redirectResult.account;
+    return true;
+  }
+  // Check if already signed in from a previous session
+  const accounts = _msalApp.getAllAccounts();
+  if (accounts.length > 0) {
+    _account = accounts[0];
+    return true;
+  }
+  return false;
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function getToken() {
+  const req = { scopes: GRAPH_SCOPES, account: _account };
+  try {
+    const res = await _msalApp.acquireTokenSilent(req);
+    return res.accessToken;
+  } catch(e) {
+    // Silent failed — use redirect
+    await _msalApp.acquireTokenRedirect(req);
+    return null; // page will redirect, so this won't be reached
+  }
+}
+
+async function graphGet(url) {
+  const token = await getToken();
+  const resp = await fetch(GRAPH_BASE + url, {
+    headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" }
+  });
+  if (!resp.ok) throw new Error(`Graph GET ${url} → ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+async function graphPost(url, body) {
+  const token = await getToken();
+  const resp = await fetch(GRAPH_BASE + url, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) throw new Error(`Graph POST ${url} → ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+async function graphPatch(url, body) {
+  const token = await getToken();
+  const resp = await fetch(GRAPH_BASE + url, {
+    method: "PATCH",
+    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) throw new Error(`Graph PATCH ${url} → ${resp.status}: ${await resp.text()}`);
+}
+
+async function graphDelete(url) {
+  const token = await getToken();
+  const resp = await fetch(GRAPH_BASE + url, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+  if (!resp.ok) throw new Error(`Graph DELETE ${url} → ${resp.status}`);
+}
+
+// ── Resolve site + list IDs ──
+async function resolveSiteAndList() {
+  if (_siteId && _listId) return;
+  const site = await graphGet(`/sites/${SP_SITE_HOST}:${SP_SITE_PATH}`);
+  _siteId = site.id;
+  try {
+    const list = await graphGet(`/sites/${_siteId}/lists/${LIST_NAME}`);
+    _listId = list.id;
+  } catch(e) { _listId = null; }
+  // Resolve or create the log list — failures here should never block the main app
+  try {
+    const logList = await graphGet(`/sites/${_siteId}/lists/${LOG_LIST_NAME}`);
+    _logListId = logList.id;
+  } catch(e) {
+    try {
+      const created = await graphPost(`/sites/${_siteId}/lists`, {
+        displayName: LOG_LIST_NAME,
+        list: { template: "genericList" }
+      });
+      _logListId = created.id;
+      await new Promise(r => setTimeout(r, 2000));
+      const cols = [
+        { name:"nd_action",   text:{} },
+        { name:"nd_dealName", text:{} },
+        { name:"nd_user",     text:{} },
+        { name:"nd_snapshot", text:{ allowMultipleLines:true } },
+      ];
+      for (const col of cols) {
+        try { await graphPost(`/sites/${_siteId}/lists/${_logListId}/columns`, col); } catch(e2){}
+      }
+    } catch(e3) { console.warn("Could not create log list:", e3.message); _logListId = null; }
+  }
+}
+
+// ── Log every change to NDPipelineLog for audit/recovery ──
+async function logChange(action, rowId, rowSnapshot){
+  if(!_siteId || !_logListId) return; // logging is best-effort, never blocks the app
+  try {
+    const row = rowSnapshot || tableRows.find(r=>String(r._id)===String(rowId)) || {};
+    const userName = (_account && (_account.name || _account.username)) || "Unknown";
+    await graphPost(`/sites/${_siteId}/lists/${_logListId}/items`, {
+      fields: {
+        Title:        `${action} — ${row.name||"(unnamed)"}`,
+        nd_action:    action,
+        nd_dealName:  row.name || "",
+        nd_user:      userName,
+        nd_snapshot:  JSON.stringify(row),
+      }
+    });
+  } catch(e) { console.warn("logChange failed (non-blocking):", e.message); }
+}
+
+// ── Columns already created manually ──
+async function ensureColumns() { /* no-op */ }
+
+// ── Seed list with RAW data ──
+async function seedList() {
+  document.getElementById("tables-outer").innerHTML =
+    `<div style="padding:40px;text-align:center;color:#8E8E89;font-size:13px;">
+      ⚙️ First-time setup: seeding ${RAW.rows.length} deals into SharePoint…<br>
+      <small>This takes about 60 seconds and only happens once.</small>
+    </div>`;
+  let order = 0;
+  for (const r of RAW.rows) {
+    const obj = {};
+    RAW.cols.forEach((c,ci) => { obj[c] = String(r[ci] ?? ""); });
+    await graphPost(`/sites/${_siteId}/lists/${_listId}/items`, { fields: {
+      Title:       obj.name        || "(unnamed)",
+      nd_location: obj.location    || "",
+      nd_stage:        obj.stage       || "",
+      nd_phase:   obj.phase       || "",
+      nd_icDate:      obj.icDate      || "",
+      nd_criticalDate: obj.criticalDate || "",
+      nd_asset:   obj.asset       || "",
+      nd_deal:         obj.deal        || "",
+      nd_priority:  obj.priority    || "",
+      nd_acqLead:    obj.acqLead     || "",
+      nd_devLead:    obj.devLead     || "",
+      nd_analyst:    obj.analyst     || "",
+      nd_closeDate: obj.closeDate   || "",
+      nd_size:    obj.size        || "",
+      nd_valueCost: obj.valueCost   || "",
+      nd_fund5equity: obj.fund5equity || "",
+      ND_Comments:  obj.comments    || "",
+      nd_section: obj.section     || "",
+      nd_sectionOrder:  order++,
+      nd_pathJson:    "",
+    }});
+  }
+  // Sentinel for paths
+  await graphPost(`/sites/${_siteId}/lists/${_listId}/items`, {
+    fields: { Title:"__paths__", nd_pathJson: JSON.stringify(RAW.paths||{}) }
+  });
+}
+
+// ── Load all items ──
+async function loadFromSP() {
+  let url = `/sites/${_siteId}/lists/${_listId}/items?$expand=fields&$top=500`;
+  let all = [];
+  while(url) {
+    const data = await graphGet(url);
+    all = all.concat(data.value||[]);
+    url = data["@odata.nextLink"] ? data["@odata.nextLink"].replace(GRAPH_BASE,"") : null;
+  }
+  const pathItem = all.find(i=>i.fields.Title==="__paths__");
+  if(pathItem){ try{ projPaths=JSON.parse(pathItem.fields.nd_pathJson||"{}"); }catch(e){ projPaths={}; } }
+
+  tableRows = all
+    .filter(i=>i.fields.Title!=="__paths__" && i.fields.Title!=="__anthropic_key__")
+    .sort((a,b)=>(a.fields.nd_sectionOrder??0)-(b.fields.nd_sectionOrder??0))
+    .map(i=>({
+      _id:         i.id,
+      _spId:       i.id,
+      name:        i.fields.Title           ||"",
+      location:    i.fields.nd_location     ||"",
+      stage:       i.fields.nd_stage        ||"",
+      phase:       i.fields.nd_phase        ||"",
+      icDate:      i.fields.nd_icDate       ||"",
+      criticalDate: i.fields.nd_criticalDate ||"",
+      asset:       i.fields.nd_asset        ||"",
+      deal:        i.fields.nd_deal         ||"",
+      priority:    i.fields.nd_priority     ||"",
+      acqLead:     i.fields.nd_acqLead      ||"",
+      devLead:     i.fields.nd_devLead      ||"",
+      analyst:     i.fields.nd_analyst      ||"",
+      closeDate:   i.fields.nd_closeDate    ||"",
+      size:        i.fields.nd_size         ||"",
+      valueCost:   i.fields.nd_valueCost    ||"",
+      fund5equity: i.fields.nd_fund5equity  ||"",
+      fundNum:     i.fields.nd_fundNum      ||"",
+      gpEquity:    i.fields.nd_gpEquity     ||"",
+      comments:    i.fields.ND_Comments     ||"",
+      section:     i.fields.nd_section      ||"",
+      subsection:  "",
+    }));
+
+  _lastSynced = new Date();
+  updateSyncLabel();
+  applyFilters();
+  requestAnimationFrame(()=>{ requestAnimationFrame(computeStats); });
+}
+
+function updateSyncLabel(){
+  const el = document.getElementById("hdr-date");
+  if(el && _lastSynced)
+    el.textContent = "Synced " + _lastSynced.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+}
+
+let _persistInProgress = false;
+
+async function persistRow(row){
+  if(!_siteId||!_listId||!row._spId) return;
+  _persistInProgress = true;
+  try {
+    await graphPatch(`/sites/${_siteId}/lists/${_listId}/items/${row._spId}/fields`, {
+      Title:           row.name        ||"",
+      nd_location:     row.location    ||"",
+      nd_stage:        row.stage       ||"",
+      nd_phase:        row.phase       ||"",
+      nd_icDate:       row.icDate      ||"",
+      nd_criticalDate: row.criticalDate ||"",
+      nd_asset:        row.asset       ||"",
+      nd_deal:         row.deal        ||"",
+      nd_priority:     row.priority    ||"",
+      nd_acqLead:      row.acqLead     ||"",
+      nd_devLead:      row.devLead     ||"",
+      nd_analyst:      row.analyst     ||"",
+      nd_closeDate:    row.closeDate   ||"",
+      nd_size:         row.size        ||"",
+      nd_valueCost:    row.valueCost   ||"",
+      nd_fund5equity:  row.fund5equity ||"",
+      nd_fundNum:      row.fundNum     ||"",
+      nd_gpEquity:     row.gpEquity    ||"",
+      ND_Comments:     row.comments    ||"",
+      nd_section:      row.section     ||"",
+    });
+  } catch(e){ 
+    console.error("persistRow:",e);
+    showErrorToast("⚠ Save failed — check console");
+  }
+  finally { _persistInProgress = false; }
+}
+
+async function persistOrder(){
+  if(!_siteId||!_listId) return;
+  _persistInProgress = true;
+  try {
+    for(let i=0;i<tableRows.length;i++){
+      await graphPatch(`/sites/${_siteId}/lists/${_listId}/items/${tableRows[i]._spId}/fields`,{nd_sectionOrder:i});
+    }
+  } catch(e){ console.error("persistOrder:",e); }
+  finally { _persistInProgress = false; }
+}
+
+// ── Fetch Anthropic API key stored in SharePoint ──
+async function fetchAnthropicKey(){
+  if(!_siteId || !_listId) return;
+  try {
+    const data = await graphGet(`/sites/${_siteId}/lists/${_listId}/items?$expand=fields&$top=500`);
+    const item = data.value?.find(i => i.fields.Title === "__anthropic_key__");
+    if(item && item.fields.ND_Comments){
+      _anthropicKey = item.fields.ND_Comments.trim();
+      console.log("✓ Anthropic key loaded from SharePoint");
+    }
+  } catch(e){ console.warn("Could not fetch Anthropic key:", e.message); }
+}
+
+async function persistPaths(){
+  if(!_siteId||!_listId) return;
+  try {
+    // Search for __paths__ sentinel — use Title filter
+    const data = await graphGet(`/sites/${_siteId}/lists/${_listId}/items?$expand=fields&$top=500`);
+    const item = data.value?.find(i=>i.fields.Title==="__paths__");
+    if(item){
+      await graphPatch(`/sites/${_siteId}/lists/${_listId}/items/${item.id}/fields`,{ nd_pathJson:JSON.stringify(projPaths) });
+      console.log("✓ Paths saved");
+    } else {
+      // Create sentinel item if it doesn't exist
+      await graphPost(`/sites/${_siteId}/lists/${_listId}/items`,{
+        fields:{ Title:"__paths__", nd_pathJson:JSON.stringify(projPaths) }
+      });
+      console.log("✓ Paths sentinel created");
+    }
+  } catch(e){ console.error("persistPaths failed:",e); }
+}
+
+async function persist(){ 
+  // Called after drag reorder — save sort order for affected rows
+  _persistInProgress = true;
+  try {
+    for(let i=0;i<tableRows.length;i++){
+      if(tableRows[i]._spId){
+        await graphPatch(`/sites/${_siteId}/lists/${_listId}/items/${tableRows[i]._spId}/fields`,{nd_sectionOrder:i});
+      }
+    }
+  } catch(e){ console.error("persistOrder:",e); }
+  finally { _persistInProgress = false; }
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+let _wasMobile = null;
+window.addEventListener("resize", ()=>{
+  const nowMobile = isMobileView();
+  if(_wasMobile !== null && _wasMobile !== nowMobile){
+    applyFilters(); // re-render when crossing the breakpoint
+  }
+  _wasMobile = nowMobile;
+});
+
+window.onload = async () => {
+  _wasMobile = isMobileView();
+  document.getElementById("hdr-date").textContent = "Signing in…";
+  document.getElementById("tables-outer").innerHTML =
+    `<div style="padding:40px;text-align:center;color:#8E8E89;font-size:13px;">⏳ Initializing Microsoft authentication…</div>`;
+  try {
+    const alreadySignedIn = await initMsal();
+    if (!alreadySignedIn) {
+      document.getElementById("tables-outer").innerHTML =
+        `<div style="padding:60px;text-align:center;">
+          <div style="font-size:13px;color:#8E8E89;margin-bottom:20px;">Sign in with your ND Microsoft account to access the Pipeline Tracker</div>
+          <button onclick="signIn()" style="background:#4891DC;color:#fff;border:none;border-radius:3px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;">
+            Sign in with Microsoft
+          </button>
+        </div>`;
+      return;
+    }
+    await loadData();
+  } catch(err) {
+    console.error("Init error:", err);
+    document.getElementById("tables-outer").innerHTML =
+      `<div style="padding:40px;text-align:center;color:#c0392b;font-size:13px;">⚠ ${err.message}</div>`;
+  }
+};
+
+async function signIn() {
+  try {
+    // Use redirect instead of popup to avoid blank popup issues
+    await _msalApp.loginRedirect({ scopes: GRAPH_SCOPES });
+  } catch(e) { console.error("Sign in failed:", e); }
+}
+
+async function loadData() {
+  document.getElementById("tables-outer").innerHTML =
+    `<div style="padding:40px;text-align:center;color:#8E8E89;font-size:13px;">⏳ Loading pipeline from SharePoint…</div>`;
+  try {
+    await resolveSiteAndList();
+    console.log("✓ Site ID:", _siteId, "List ID:", _listId);
+  } catch(e) {
+    document.getElementById("tables-outer").innerHTML =
+      `<div style="padding:40px;text-align:center;color:#c0392b;font-size:13px;">⚠ Could not resolve SharePoint site:<br><small>${e.message}</small></div>`;
+    return;
+  }
+  try {
+    if (!_listId) {
+      // List doesn't exist — create it
+      document.getElementById("tables-outer").innerHTML =
+        `<div style="padding:40px;text-align:center;color:#8E8E89;font-size:13px;">⚙️ Creating NDPipeline list in SharePoint…</div>`;
+      const created = await graphPost(`/sites/${_siteId}/lists`, {
+        displayName: LIST_NAME,
+        list: { template: "genericList" }
+      });
+      _listId = created.id;
+      await new Promise(r => setTimeout(r, 3000));
+      await ensureColumns();
+      await new Promise(r => setTimeout(r, 3000));
+      await seedList();
+    } else {
+      // List exists — check if empty
+      const countData = await graphGet(`/sites/${_siteId}/lists/${_listId}/items?$top=1`);
+      console.log("✓ List accessible, items:", countData.value?.length);
+      if (!countData.value || countData.value.length === 0) {
+        await ensureColumns();
+        await new Promise(r => setTimeout(r, 3000));
+        await seedList();
+      }
+    }
+  } catch(e) {
+    document.getElementById("tables-outer").innerHTML =
+      `<div style="padding:40px;text-align:center;color:#c0392b;font-size:13px;">⚠ Could not access NDPipeline list:<br><small>${e.message}</small></div>`;
+    return;
+  }
+  try {
+    await loadFromSP();
+    fetchAnthropicKey(); // non-blocking, best-effort
+  } catch(e) {
+    document.getElementById("tables-outer").innerHTML =
+      `<div style="padding:40px;text-align:center;color:#c0392b;font-size:13px;">⚠ Could not load data:<br><small>${e.message}</small></div>`;
+    return;
+  }
+  try {
+    const me = await graphGet("/me");
+    document.getElementById("hdr-date").textContent = me.displayName || me.userPrincipalName;
+  } catch(e) { updateSyncLabel(); }
+  _refreshTimer = setInterval(async () => {
+    if (_persistInProgress) return; // skip refresh while writing
+    try { await loadFromSP(); } catch(e) { console.warn("Refresh failed:", e); }
+  }, 120000);
+}
+
+// ══════════════════════════════════════════════
+// BUILD HEADER ROW (called per stage table)
+// ══════════════════════════════════════════════
+function buildHeaderRow(){
+  const tr = document.createElement("tr");
+  const thf=document.createElement("th"); thf.style.width="40px"; thf.style.textAlign="center"; tr.appendChild(thf);
+  VIS_COLS.forEach(col=>{
+    const th = document.createElement("th");
+    th.textContent = RAW.labels[col]||col;
+    th.setAttribute("data-col",col);
+    th.onclick = ()=>sortBy(col);
+    if(sortCol===col) th.classList.add("sort-"+sortDir);
+    if(COL_WIDTHS[col]) th.style.width = COL_WIDTHS[col];
+    if(col==="valueCost"||col==="fund5equity"||col==="gpEquity") th.style.textAlign = "right";
+    tr.appendChild(th);
+  });
+  const thd=document.createElement("th"); thd.style.width="28px"; tr.appendChild(thd);
+  return tr;
+}
+
+// ══════════════════════════════════════════════
+// BUILD SINGLE ROW
+// ══════════════════════════════════════════════
+function buildRow(row){
+  const tr = document.createElement("tr");
+  tr.setAttribute("data-id",row._id);
+  if(row.priority === "High") tr.classList.add("high-priority");
+
+  const tdFolder=document.createElement("td"); tdFolder.className="td-folder";
+  const fb=document.createElement("button"); fb.className="folder-btn"; fb.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
+  const nameVal=row["name"]||"";
+  fb.onclick=()=>copyPath(row._id,nameVal);
+  fb.oncontextmenu=(e)=>{e.preventDefault();openModal(row._id,nameVal);};
+  fb.title="Left-click: copy path  |  Right-click: edit path";
+  tdFolder.appendChild(fb); tr.appendChild(tdFolder);
+
+  VIS_COLS.forEach(col=>{
+    const td = document.createElement("td");
+    const val = row[col]||"";
+
+    if(col==="name"){
+      const span=document.createElement("span"); span.className="proj-name"; span.contentEditable="true";
+      span.textContent=val;
+      span.onblur=()=>updateCell(row._id,"name",span.textContent.trim());
+      td.appendChild(span);
+
+    } else if(col==="fundNum"){
+      td.style.textAlign="center";
+      td.appendChild(makeSelect(row._id,col,FUND_OPTS,val,"fundNum"));
+
+    } else if(col==="location"){
+      td.className="td-loc editable"; td.contentEditable="true"; td.textContent=val;
+      td.onblur=()=>updateCell(row._id,col,td.textContent.trim());
+
+    } else if(col==="stage"){
+      td.appendChild(makeSelect(row._id,col,STAGE_OPTS,val||"ACTIVE","stage"));
+
+    } else if(col==="phase"){
+      // Phase cycle button for Active deals; blank cell for all others
+      if(row.stage === "ACTIVE"){
+        td.appendChild(makeCycleBtn(row._id, "phase", val, PHASE_CYCLE, PHASE_CLS));
+      }
+
+    } else if(col==="icDate"){
+      // IC Date picker button for Active deals only; blank for all others
+      if(row.stage === "ACTIVE"){
+        td.appendChild(makeIcDateBtn(row._id, val));
+      }
+
+    } else if(col==="criticalDate"){
+      // Critical Date picker button for Active deals only; blank for all others
+      if(row.stage === "ACTIVE"){
+        td.appendChild(makeCriticalDateBtn(row._id, val));
+      }
+
+    } else if(col==="asset"){
+      td.appendChild(makeSelect(row._id,col,ASSET_OPTS,val,"asset"));
+
+    } else if(col==="deal"){
+      td.appendChild(makeSelect(row._id,col,DEAL_OPTS,val,"deal"));
+
+    } else if(col==="priority"){
+      td.appendChild(makePriorityBtn(row._id, val));
+
+    } else if(col==="valueCost"||col==="fund5equity"||col==="gpEquity"){
+      td.className="td-money editable"; td.contentEditable="true";
+      td.textContent=formatCurrency(val);
+      td.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); td.blur(); } };
+      td.onblur=()=>{
+        const fmt=formatCurrency(td.textContent.trim());
+        td.textContent=fmt;
+        updateCell(row._id,col,fmt);
+      };
+
+    } else if(col==="comments"){
+      td.className="td-comments editable"; td.contentEditable="true"; td.textContent=val;
+      td.onblur=()=>updateCell(row._id,col,td.textContent.trim());
+
+    } else {
+      td.className="editable"; td.contentEditable="true"; td.textContent=val;
+      td.onblur=()=>updateCell(row._id,col,td.textContent.trim());
+    }
+
+    tr.appendChild(td);
+  });
+
+  const tdDel=document.createElement("td"); tdDel.style.textAlign="center";
+  const del=document.createElement("button");
+  del.innerHTML="✕"; del.className="btn"; del.style.cssText="background:none;color:#c0392b;padding:2px 5px;font-size:11px;";
+  del.onclick=()=>deleteRow(row._id);
+  tdDel.appendChild(del); tr.appendChild(tdDel);
+
+  return tr;
+}
+
+// ══════════════════════════════════════════════
+// MOBILE CARD VIEW
+// ══════════════════════════════════════════════
+function renderMobileSection(section, stage, stageRows){
+  const wrap = document.createElement("div");
+  wrap.className = "deal-cards";
+  wrap.setAttribute("data-stage", stage);
+
+  if(stageRows.length === 0){
+    const dz = document.createElement("div");
+    dz.className = "mobile-stage-drop";
+    dz.textContent = "No deals in this stage";
+    wrap.appendChild(dz);
+  } else {
+    stageRows.forEach(row=>wrap.appendChild(buildMobileCard(row)));
+  }
+  section.appendChild(wrap);
+}
+
+function buildMobileCard(row){
+  const card = document.createElement("div");
+  card.className = "deal-card" + (row.priority === "High" ? " high-priority" : "");
+  card.setAttribute("data-id", row._id);
+
+  const folderBtn = document.createElement("button");
+  folderBtn.className = "deal-card-folder";
+  folderBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`;
+  folderBtn.onclick=()=>copyPath(row._id, row.name||"");
+  folderBtn.oncontextmenu=(e)=>{e.preventDefault();openModal(row._id, row.name||"");};
+  card.appendChild(folderBtn);
+
+  const hdr = document.createElement("div");
+  hdr.className = "deal-card-hdr";
+
+  const expandBtn = document.createElement("button");
+  expandBtn.className = "deal-card-expand-btn";
+  expandBtn.setAttribute("aria-label","Expand deal details");
+  expandBtn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+  expandBtn.onclick = ()=> card.classList.toggle("expanded");
+  hdr.appendChild(expandBtn);
+
+  const nameWrap = document.createElement("div");
+  nameWrap.style.flex = "1";
+  nameWrap.style.minWidth = "0";
+  const nameEl = document.createElement("div");
+  nameEl.className = "deal-card-name"; nameEl.contentEditable = "true"; nameEl.textContent = row.name||"";
+  nameEl.onblur = ()=>updateCell(row._id,"name",nameEl.textContent.trim());
+  const locEl = document.createElement("div");
+  locEl.className = "deal-card-loc"; locEl.contentEditable = "true"; locEl.textContent = row.location||"";
+  locEl.onblur = ()=>updateCell(row._id,"location",locEl.textContent.trim());
+  nameWrap.appendChild(nameEl); nameWrap.appendChild(locEl);
+  hdr.appendChild(nameWrap);
+
+  const delBtn = document.createElement("button");
+  delBtn.className = "deal-card-del"; delBtn.innerHTML = "✕";
+  delBtn.onclick = ()=>deleteRow(row._id);
+  hdr.appendChild(delBtn);
+  card.appendChild(hdr);
+
+  const body = document.createElement("div");
+  body.className = "deal-card-body";
+
+  const badges = document.createElement("div");
+  badges.className = "deal-card-badges";
+  if(row.stage === "ACTIVE") badges.appendChild(makeCycleBtn(row._id,"phase",row.phase,PHASE_CYCLE,PHASE_CLS));
+  badges.appendChild(makePriorityBtn(row._id, row.priority));
+  if(row.stage === "ACTIVE") badges.appendChild(makeCriticalDateBtn(row._id, row.criticalDate));
+  if(row.stage === "ACTIVE") badges.appendChild(makeIcDateBtn(row._id, row.icDate));
+  body.appendChild(badges);
+
+  const grid = document.createElement("div");
+  grid.className = "deal-card-grid";
+  const fields = [
+    ["Stage", "stage", "select", STAGE_OPTS],
+    ["Asset", "asset", "select", ASSET_OPTS],
+    ["Deal", "deal", "select", DEAL_OPTS],
+    ["Acq Lead", "acqLead", "text"],
+    ["Dev Lead", "devLead", "text"],
+    ["Analyst", "analyst", "text"],
+    ["Size", "size", "text"],
+    ["Fund", "fundNum", "select", FUND_OPTS],
+    ["Value/Cost", "valueCost", "money"],
+    ["Fund Equity", "fund5equity", "money"],
+    ["CoDev/GP Eq.", "gpEquity", "money"],
+  ];
+  fields.forEach(([lbl,key,type,opts])=>{
+    const f = document.createElement("div"); f.className="deal-card-field";
+    const flbl = document.createElement("div"); flbl.className="deal-card-field-lbl"; flbl.textContent=lbl;
+    f.appendChild(flbl);
+    if(type==="select"){
+      f.appendChild(makeSelect(row._id,key,opts,row[key],key));
+    } else {
+      const fval = document.createElement("div");
+      fval.className = "deal-card-field-val editable" + (type==="money" ? " deal-card-money" : "");
+      fval.contentEditable = "true";
+      fval.textContent = type==="money" ? formatCurrency(row[key]||"") : (row[key]||"");
+      fval.onblur = ()=>{
+        const v = type==="money" ? formatCurrency(fval.textContent.trim()) : fval.textContent.trim();
+        fval.textContent = v;
+        updateCell(row._id,key,v);
+      };
+      f.appendChild(fval);
+    }
+    grid.appendChild(f);
+  });
+  body.appendChild(grid);
+
+  const cm = document.createElement("div");
+  cm.className = "deal-card-comments"; cm.contentEditable = "true";
+  cm.textContent = row.comments || "";
+  if(!row.comments) cm.style.color = "var(--nd-light)";
+  cm.onblur = ()=>updateCell(row._id,"comments",cm.textContent.trim());
+  body.appendChild(cm);
+
+  card.appendChild(body);
+
+  return card;
+}
+
+// ══════════════════════════════════════════════
+// RENDER ALL STAGE SECTIONS
+// ══════════════════════════════════════════════
+const STAGE_ORDER   = ["ACTIVE","SUBMITTED","UNDER REVIEW","UNDER AGREEMENT","ON HOLD","PASSED"];
+const STAGE_HDR_CLS = {"ACTIVE":"stage-hdr-active","SUBMITTED":"stage-hdr-submitted","UNDER REVIEW":"stage-hdr-review","UNDER AGREEMENT":"stage-hdr-agreement","ON HOLD":"stage-hdr-hold","PASSED":"stage-hdr-none"};
+const STAGE_HDR_LBL = {"ACTIVE":"Active","SUBMITTED":"Submitted","UNDER REVIEW":"Under Review","UNDER AGREEMENT":"Under Agreement","ON HOLD":"On Hold","PASSED":"Passed"};
+const COLS_SPAN     = VIS_COLS.length + 2;
+
+function isMobileView(){ return window.innerWidth <= 800; }
+
+function renderAll(filtered){
+  const outer = document.getElementById("tables-outer");
+  outer.innerHTML = "";
+  const activeStageChips = getActiveChips("stage");
+  const mobile = isMobileView();
+
+  STAGE_ORDER.forEach(stage=>{
+    if(activeStageChips.length > 0 && !activeStageChips.includes(stage)) return;
+
+    const stageRows = filtered.filter(r=> stage === "PASSED" ? (r.stage === "PASSED" || r.stage === "") : r.stage === stage);
+
+    const section = document.createElement("div");
+    section.className = "stage-section";
+    section.setAttribute("data-stage", stage);
+
+    const hdr = document.createElement("div");
+    hdr.className = "stage-hdr " + (STAGE_HDR_CLS[stage]||"stage-hdr-none");
+    const pill = stageRows.length===1 ? "1 deal" : stageRows.length+" deals";
+    hdr.innerHTML = `<span>${STAGE_HDR_LBL[stage]}</span><span class="stage-hdr-pill">${pill}</span>`;
+    section.appendChild(hdr);
+
+    if(mobile){
+      renderMobileSection(section, stage, stageRows);
+      outer.appendChild(section);
+      return;
+    }
+
+    const tblWrap = document.createElement("div");
+    tblWrap.className = "tbl-wrap";
+
+    const tbl = document.createElement("table");
+    const thead = document.createElement("thead");
+    thead.appendChild(buildHeaderRow());
+    tbl.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    tbody.setAttribute("data-stage", stage);
+    tbody.addEventListener("dragover", e=>{ e.preventDefault(); e.dataTransfer.dropEffect="move"; });
+    if(stageRows.length===0){
+      const dzRow = document.createElement("tr");
+      dzRow.className = "drop-zone-row";
+      const dzTd = document.createElement("td");
+      dzTd.colSpan = COLS_SPAN;
+      dzTd.textContent = "No deals in this stage";
+      dzRow.appendChild(dzTd); tbody.appendChild(dzRow);
+    } else {
+      stageRows.forEach(row=>tbody.appendChild(buildRow(row)));
+    }
+
+    tbl.appendChild(tbody);
+
+    // Totals footer — only when there are rows
+    if(stageRows.length > 0){
+      let vcTotal=0, f5Total=0, gpTotal=0;
+      stageRows.forEach(r=>{
+        const vc=parseFloat((r.valueCost||"").replace(/[$,\s]/g,""));
+        if(!isNaN(vc)) vcTotal+=vc;
+        const f5=parseFloat((r.fund5equity||"").replace(/[$,\s]/g,""));
+        if(!isNaN(f5)) f5Total+=f5;
+        const gp=parseFloat((r.gpEquity||"").replace(/[$,\s]/g,""));
+        if(!isNaN(gp)) gpTotal+=gp;
+      });
+      const vcIdx=VIS_COLS.indexOf("valueCost");
+      const f5Idx=VIS_COLS.indexOf("fund5equity");
+      const gpIdx=VIS_COLS.indexOf("gpEquity");
+      const FOLDER_COLS=1;  // only folder col now (grip removed)
+
+      const tfoot=document.createElement("tfoot");
+      const tfRow=document.createElement("tr");
+
+      // Left span: folder col + all visible cols before valueCost
+      const tdLeft=document.createElement("td");
+      tdLeft.colSpan=FOLDER_COLS+vcIdx;
+      tdLeft.innerHTML=`<span class="tfoot-count">${stageRows.length} deal${stageRows.length!==1?"s":""}</span>`;
+      tfRow.appendChild(tdLeft);
+
+      // Value/Cost total
+      const tdVc=document.createElement("td");
+      tdVc.className="td-money tfoot-money";
+      tdVc.textContent=vcTotal>0?fmtM(vcTotal):"—";
+      tfRow.appendChild(tdVc);
+
+      // Fund Equity total
+      const tdF5=document.createElement("td");
+      tdF5.className="td-money tfoot-money";
+      tdF5.textContent=f5Total>0?fmtM(f5Total):"—";
+      tfRow.appendChild(tdF5);
+
+      // CoDev/GP Equity total
+      const tdGp=document.createElement("td");
+      tdGp.className="td-money tfoot-money";
+      tdGp.textContent=gpTotal>0?fmtM(gpTotal):"—";
+      tfRow.appendChild(tdGp);
+
+      // Right span: cols after gpEquity + delete col
+      const tdRight=document.createElement("td");
+      tdRight.colSpan=(VIS_COLS.length-gpIdx-1)+1;
+      tfRow.appendChild(tdRight);
+
+      tfoot.appendChild(tfRow);
+      tbl.appendChild(tfoot);
+    }
+
+    tblWrap.appendChild(tbl);
+    section.appendChild(tblWrap);
+    outer.appendChild(section);
+  });
+
+  const vis = filtered.length;
+  const tot = tableRows.length;
+  document.getElementById("rowCount").textContent =
+    vis===tot ? `Showing all ${tot} deals` : `Showing ${vis} of ${tot} deals`;
+}
+
+// ══════════════════════════════════════════════
+// PRIORITY CYCLE BUTTON
+// ══════════════════════════════════════════════
+const PRIORITY_CYCLE = ["","Low","Med","High"];
+const PRIORITY_CLS   = {"High":"b-high","Med":"b-med-p","Low":"b-low","":"empty"};
+
+function makePriorityBtn(id, val){
+  return makeCycleBtn(id,"priority",val,PRIORITY_CYCLE,PRIORITY_CLS);
+}
+
+function makeCycleBtn(id, col, val, cycle, clsMap){
+  const btn = document.createElement("button");
+  btn.className = "priority-btn" + (val ? "" : " empty");
+  btn.appendChild(cycleBadge(val, clsMap));
+  btn.onclick = ()=>{
+    const row = tableRows.find(r=>r._id===id);
+    if(!row) return;
+    const next = cycle[(cycle.indexOf(row[col])+1) % cycle.length];
+    row[col] = next;
+    btn.className = "priority-btn" + (next ? "" : " empty");
+    btn.innerHTML = "";
+    btn.appendChild(cycleBadge(next, clsMap));
+    if(col === "priority"){
+      const container = btn.closest("tr") || btn.closest(".deal-card");
+      if(container) container.classList.toggle("high-priority", next === "High");
+    }
+    updateCell(id, col, next);
+  };
+  return btn;
+}
+
+function cycleBadge(val, clsMap){
+  const span = document.createElement("span");
+  span.className = "badge " + (clsMap[val] || "empty");
+  span.textContent = val || "—";
+  return span;
+}
+
+// ══════════════════════════════════════════════
+// SELECT HELPER
+// ══════════════════════════════════════════════
+function makeSelect(id, col, opts, val, cls){
+  const wrap = document.createElement("div"); wrap.className="sel-wrap";
+  const sel  = document.createElement("select"); sel.className="nd-sel" + (col==="stage" ? " stage-sel" : "") + (col==="fundNum" ? " fund-sel" : "");
+  opts.forEach(o=>{
+    const opt=document.createElement("option");
+    opt.value=o; opt.textContent=o||"—";
+    if(o===val) opt.selected=true;
+    sel.appendChild(opt);
+  });
+  sel.onchange=()=>{
+    updateCell(id,col,sel.value);
+    applyFilters();
+  };
+  const arr=document.createElement("span"); arr.className="sel-arrow"; arr.textContent="▾";
+  if(col==="fundNum") arr.style.display="none";
+  wrap.appendChild(sel); wrap.appendChild(arr);
+  return wrap;
+}
+
+// ══════════════════════════════════════════════
+// EDIT / DELETE / ADD
+// ══════════════════════════════════════════════
+// IC DATE PICKER
+// ══════════════════════════════════════════════
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function fmtIcDate(val){
+  if(!val) return "—";
+  if(val==="TBD") return "TBD";
+  try{
+    const [y,m,d]=val.split("-");
+    return MONTHS[parseInt(m,10)-1]+" "+parseInt(d,10);
+  }catch(e){ return val; }
+}
+
+function icDateBadge(val, emptyLabel){
+  const span=document.createElement("span");
+  span.className="b-icdate";
+  if(val==="TBD"){ span.classList.add("b-icdate-tbd"); span.textContent="TBD"; }
+  else if(val){ span.classList.add("b-icdate-set"); span.textContent=fmtIcDate(val); }
+  else{ span.classList.add("b-icdate-empty"); span.textContent=emptyLabel||"IC Date"; }
+  return span;
+}
+
+function makeIcDateBtn(id,val){
+  const btn=document.createElement("button");
+  btn.className="icdate-btn";
+  btn.appendChild(icDateBadge(val));
+  btn.onclick=(e)=>{ e.stopPropagation(); openIcDatePopup(id,val,btn); };
+  return btn;
+}
+
+let _icdateId=null, _icdateBtn=null;
+
+function openIcDatePopup(id,val,anchorBtn){
+  const popup=document.getElementById("icdate-popup");
+  const input=document.getElementById("icdate-input");
+  if(_icdateId===id && popup.classList.contains("open")){ closeIcDatePopup(); return; }
+  _icdateId=id; _icdateBtn=anchorBtn;
+  input.value=(val && val!=="TBD") ? val : "";
+  // Position below the button, clamped to viewport
+  const rect=anchorBtn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+4)+"px";
+  popup.style.left=Math.min(rect.left, window.innerWidth-192)+"px";
+  popup.classList.add("open");
+}
+
+function closeIcDatePopup(){
+  document.getElementById("icdate-popup").classList.remove("open");
+  _icdateId=null; _icdateBtn=null;
+}
+
+function applyIcDate(val){
+  if(_icdateId==null) return;
+  const id=_icdateId, btn=_icdateBtn;
+  updateCell(id,"icDate",val);
+  if(btn){ btn.innerHTML=""; btn.appendChild(icDateBadge(val)); }
+  closeIcDatePopup();
+}
+
+document.addEventListener("click",(e)=>{
+  const popup=document.getElementById("icdate-popup");
+  if(popup && popup.classList.contains("open") && !popup.contains(e.target) && !e.target.closest(".icdate-btn")){
+    closeIcDatePopup();
+  }
+});
+
+// ── CRITICAL DATE (mirrors IC Date) ──
+function makeCriticalDateBtn(id,val){
+  const btn=document.createElement("button");
+  btn.className="icdate-btn";
+  btn.appendChild(icDateBadge(val, "Date"));
+  btn.onclick=(e)=>{ e.stopPropagation(); openCriticalDatePopup(id,val,btn); };
+  return btn;
+}
+
+let _critdateId=null, _critdateBtn=null;
+
+function openCriticalDatePopup(id,val,anchorBtn){
+  const popup=document.getElementById("criticaldate-popup");
+  const input=document.getElementById("criticaldate-input");
+  if(_critdateId===id && popup.classList.contains("open")){ closeCriticalDatePopup(); return; }
+  _critdateId=id; _critdateBtn=anchorBtn;
+  input.value=(val && val!=="TBD") ? val : "";
+  const rect=anchorBtn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+4)+"px";
+  popup.style.left=Math.min(rect.left, window.innerWidth-192)+"px";
+  popup.classList.add("open");
+}
+
+function closeCriticalDatePopup(){
+  document.getElementById("criticaldate-popup").classList.remove("open");
+  _critdateId=null; _critdateBtn=null;
+}
+
+function applyCriticalDate(val){
+  if(_critdateId==null) return;
+  const id=_critdateId, btn=_critdateBtn;
+  updateCell(id,"criticalDate",val);
+  if(btn){ btn.innerHTML=""; btn.appendChild(icDateBadge(val, "Date")); }
+  closeCriticalDatePopup();
+}
+
+document.addEventListener("click",(e)=>{
+  const popup=document.getElementById("criticaldate-popup");
+  if(popup && popup.classList.contains("open") && !popup.contains(e.target) && !e.target.closest(".icdate-btn")){
+    closeCriticalDatePopup();
+  }
+});
+
+// ══════════════════════════════════════════════
+function updateCell(id,col,val){
+  const row = tableRows.find(r=>r._id===id);
+  if(row){
+    if(col==="stage" && row.stage !== val){
+      logChange("STAGE CHANGE: "+(row.stage||"None")+" → "+(val||"None"), id, {...row, stage:val});
+    }
+    row[col]=val;
+    persistRow(row); // write to SharePoint
+  }
+  if(col==="stage"||col==="asset"||col==="deal"||col==="priority"||col==="valueCost"||col==="fund5equity"){
+    applyFilters();
+  } else {
+    computeStats();
+  }
+}
+
+let _pendingDeleteId = null;
+
+function deleteRow(id){
+  _pendingDeleteId = id;
+  const row = tableRows.find(r=>r._id===id);
+  document.getElementById("delConfirmName").textContent = row ? (row.name||"this deal") : "this deal";
+  document.getElementById("delConfirmOverlay").classList.add("show");
+}
+
+function confirmDelete(){
+  const id = _pendingDeleteId;
+  document.getElementById("delConfirmOverlay").classList.remove("show");
+  if(id == null) return;
+  const row = tableRows.find(r=>r._id===id);
+  if(row){
+    logChange("MOVED TO PASSED: "+(row.name||""), id, {...row, stage:"PASSED"});
+    row.stage = "PASSED";
+    row.phase = "";
+    persistRow(row);
+    applyFilters();
+  }
+  _pendingDeleteId = null;
+}
+
+function cancelDelete(){
+  document.getElementById("delConfirmOverlay").classList.remove("show");
+  _pendingDeleteId = null;
+}
+
+async function openChangeLog(){
+  const overlay = document.getElementById("changeLogOverlay");
+  const list = document.getElementById("changeLogList");
+  overlay.classList.add("show");
+  list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--nd-mid);font-size:12px;">Loading…</div>`;
+  if(!_siteId || !_logListId){
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--nd-mid);font-size:12px;">Log not available yet.</div>`;
+    return;
+  }
+  try {
+    const data = await graphGet(`/sites/${_siteId}/lists/${_logListId}/items?$expand=fields&$top=100`);
+    const itemsRaw = (data.value || []).sort((a,b)=> new Date(b.fields.Created) - new Date(a.fields.Created));
+    const items = itemsRaw;
+    if(items.length === 0){
+      list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--nd-mid);font-size:12px;">No changes logged yet.</div>`;
+      return;
+    }
+    list.innerHTML = items.map(i=>{
+      const f = i.fields;
+      const when = f.Created ? new Date(f.Created).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : "";
+      const actionColor = (f.nd_action||"").startsWith("DELETE") ? "#c0392b" : (f.nd_action||"").startsWith("ADD") ? "#27ae60" : "#4891DC";
+      return `<div style="padding:9px 12px;border-bottom:1px solid var(--nd-pale);font-size:11px;">
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:2px;">
+          <span style="font-weight:700;color:${actionColor};">${f.nd_action||""}</span>
+          <span style="color:var(--nd-light);white-space:nowrap;">${when}</span>
+        </div>
+        <div style="color:var(--nd-dark);">${f.nd_dealName||""}</div>
+        <div style="color:var(--nd-mid);font-size:10px;margin-top:1px;">by ${f.nd_user||"Unknown"}</div>
+      </div>`;
+    }).join("");
+  } catch(e) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:#c0392b;font-size:12px;">⚠ ${e.message}</div>`;
+  }
+}
+
+function closeChangeLog(){
+  document.getElementById("changeLogOverlay").classList.remove("show");
+}
+
+let _admStage = "";
+
+function openAddDeal(){
+  _admStage = "";
+  // Clear all fields
+  ["name","location","acqLead","devLead","analyst","size","fundNum","valueCost","fund5equity","gpEquity","comments"].forEach(f=>{
+    const el=document.getElementById("adm-"+f);
+    if(el) el.value="";
+  });
+  ["phase","asset","deal","priority"].forEach(f=>{
+    const el=document.getElementById("adm-"+f);
+    if(el) el.value="";
+  });
+  document.getElementById("adm-icdate").value="";
+  document.getElementById("adm-criticaldate").value="";
+  // Reset stage buttons
+  document.querySelectorAll(".adm-stage-btn").forEach(b=>b.className="adm-stage-btn");
+  // Hide phase/icdate rows
+  document.querySelectorAll(".adm-phase-row").forEach(el=>el.style.display="none");
+  document.getElementById("add-deal-overlay").classList.add("open");
+  setTimeout(()=>document.getElementById("adm-name").focus(),50);
+}
+
+function closeAddDeal(){
+  document.getElementById("add-deal-overlay").classList.remove("open");
+}
+
+function selectAdmStage(btn){
+  _admStage = btn.getAttribute("data-stage");
+  document.querySelectorAll(".adm-stage-btn").forEach(b=>b.className="adm-stage-btn");
+  const clsMap={"ACTIVE":"sel-active","SUBMITTED":"sel-submitted","UNDER REVIEW":"sel-review","UNDER AGREEMENT":"sel-agreement","ON HOLD":"sel-hold","PASSED":"sel-passed","":"sel-none"};
+  btn.classList.add(clsMap[_admStage]||"sel-none");
+  // Show phase/icdate fields only for Active
+  const show = _admStage==="ACTIVE";
+  document.querySelectorAll(".adm-phase-row").forEach(el=>el.style.display=show?"flex":"none");
+}
+
+function submitAddDeal(){
+  const name = document.getElementById("adm-name").value.trim();
+  if(!name){ document.getElementById("adm-name").focus(); return; }
+  const icRaw = document.getElementById("adm-icdate").value;
+  const critRaw = document.getElementById("adm-criticaldate").value;
+  const newRow = {
+    _id: Date.now(),
+    section:"", subsection:"",
+    name,
+    location:   document.getElementById("adm-location").value.trim(),
+    stage:      _admStage,
+    phase:      _admStage==="ACTIVE" ? document.getElementById("adm-phase").value : "",
+    icDate:     _admStage==="ACTIVE" && icRaw ? icRaw : "",
+    criticalDate: _admStage==="ACTIVE" && critRaw ? critRaw : "",
+    asset:      document.getElementById("adm-asset").value,
+    deal:       document.getElementById("adm-deal").value,
+    priority:   document.getElementById("adm-priority").value,
+    acqLead:    document.getElementById("adm-acqLead").value.trim(),
+    devLead:    document.getElementById("adm-devLead").value.trim(),
+    analyst:    document.getElementById("adm-analyst").value.trim(),
+    size:       document.getElementById("adm-size").value.trim(),
+    fundNum:    document.getElementById("adm-fundNum").value.trim(),
+    valueCost:  formatCurrency(document.getElementById("adm-valueCost").value.trim()),
+    fund5equity:formatCurrency(document.getElementById("adm-fund5equity").value.trim()),
+    gpEquity:   formatCurrency(document.getElementById("adm-gpEquity").value.trim()),
+    comments:   document.getElementById("adm-comments").value.trim(),
+    closeDate:""
+  };
+  tableRows.push(newRow);
+  applyFilters();
+  closeAddDeal();
+  logChange("ADD", newRow._id, newRow);
+  // Create in SharePoint
+  if(_siteId && _listId){
+    graphPost(`/sites/${_siteId}/lists/${_listId}/items`, {
+      fields: {
+        Title:           newRow.name        || "",
+        nd_location:     newRow.location    || "",
+        nd_stage:        newRow.stage       || "",
+        nd_phase:        newRow.phase       || "",
+        nd_icDate:       newRow.icDate      || "",
+        nd_criticalDate: newRow.criticalDate || "",
+        nd_asset:        newRow.asset       || "",
+        nd_deal:         newRow.deal        || "",
+        nd_priority:     newRow.priority    || "",
+        nd_acqLead:      newRow.acqLead     || "",
+        nd_devLead:      newRow.devLead     || "",
+        nd_analyst:      newRow.analyst     || "",
+        nd_closeDate:    newRow.closeDate   || "",
+        nd_size:         newRow.size        || "",
+        nd_valueCost:    newRow.valueCost   || "",
+        nd_fund5equity:  newRow.fund5equity || "",
+        nd_fundNum:      newRow.fundNum     || "",
+        nd_gpEquity:     newRow.gpEquity    || "",
+        ND_Comments:     newRow.comments    || "",
+        nd_section:      newRow.section     || "",
+        nd_sectionOrder:    tableRows.length,
+      }
+    }).then(created => {
+      // Update local row with real SP id
+      newRow._id    = created.id;
+      newRow._spId  = created.id;
+    }).catch(e=>console.error("Add deal failed:",e));
+  }
+  setTimeout(()=>{
+    const sec=document.querySelector(`.stage-section[data-stage="${_admStage}"]`);
+    if(sec) sec.scrollIntoView({behavior:"smooth",block:"nearest"});
+  },100);
+}
+
+// Close modal on overlay click
+document.getElementById("add-deal-overlay").addEventListener("click",e=>{
+  if(e.target===document.getElementById("add-deal-overlay")) closeAddDeal();
+});
+
+// Close modal on Escape
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAddDeal(); });
+
+// ══════════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════════
+function getActiveChips(filterName){
+  const chips = document.querySelectorAll(`.chip[data-filter="${filterName}"]`);
+  const active = [];
+  chips.forEach(c=>{ if(c.classList.contains("on")) active.push(c.getAttribute("data-val")); });
+  return active;
+}
+
+function applyFilters(){
+  const activeStages = getActiveChips("stage");
+  const activeAssets = getActiveChips("asset");
+  const activeDeals  = getActiveChips("deal");
+  const q = (document.getElementById("searchBox").value||"").toLowerCase().trim();
+
+  const filtered = tableRows.filter(row=>{
+    // If no chips selected in a group, show all; otherwise filter to selected
+    if(activeStages.length > 0){
+      const rowStage = (row.stage === "" || row.stage === "PASSED") ? "PASSED" : row.stage;
+      if(!activeStages.includes(rowStage)) return false;
+    }
+    if(activeAssets.length > 0 && row.asset && !activeAssets.includes(row.asset)) return false;
+    if(activeDeals.length > 0 && !activeDeals.includes(row.deal)) return false;
+    if(q){
+      const txt=(row.name+row.location+row.comments+row.analyst+row.acqLead+row.devLead).toLowerCase();
+      if(!txt.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if(sortCol){
+    const PRIORITY_ORDER = {"High":0,"Med":1,"Low":2,"":3};
+    filtered.sort((a,b)=>{
+      let c;
+      if(sortCol==="priority"){
+        const pa = PRIORITY_ORDER[a.priority]??3;
+        const pb = PRIORITY_ORDER[b.priority]??3;
+        c = pa - pb;
+      } else {
+        const va=String(a[sortCol]??"").toLowerCase();
+        const vb=String(b[sortCol]??"").toLowerCase();
+        c = va.localeCompare(vb);
+      }
+      return sortDir==="asc"?c:-c;
+    });
+  }
+
+  renderAll(filtered);
+  computeStats();
+}
+
+function toggleChip(btn){
+  btn.classList.toggle("on");
+  applyFilters();
+}
+
+function clearFilters(){
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+  document.getElementById("searchBox").value="";
+  applyFilters();
+}
+
+// ══════════════════════════════════════════════
+// SORT
+// ══════════════════════════════════════════════
+function sortBy(col){
+  if(sortCol===col){
+    if(sortDir==="asc")       sortDir="desc";  // 2nd click → descending
+    else { sortCol=null; sortDir="asc"; }      // 3rd click → clear sort
+  } else {
+    sortCol=col; sortDir="asc";                // 1st click → ascending
+  }
+  applyFilters();
+}
+
+// ══════════════════════════════════════════════
+// SAVE / RESET / EXPORT
+// ══════════════════════════════════════════════
+function saveAll(){
+  // In Firebase mode, data is auto-saved on every change.
+  // This button now just confirms to the user and exports CSV.
+  if(document.activeElement && document.activeElement !== document.body){
+    document.activeElement.blur();
+  }
+  showToast("✓ All changes are saved automatically to the cloud");
+}
+
+
+function exportCSV(){
+  const visRows=[...document.querySelectorAll("#tables-outer tbody tr[data-id]")];
+  const headers=VIS_COLS.map(c=>RAW.labels[c]||c).join(",");
+  const lines=visRows.map(tr=>{
+    const id=tr.getAttribute("data-id");
+    const row=tableRows.find(r=>String(r._id)===String(id))||{};
+    return VIS_COLS.map(c=>`"${(row[c]||"").replace(/"/g,'""')}"`).join(",");
+  });
+  const csv=headers+"\n"+lines.join("\n");
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+  a.download="ND_Pipeline_"+new Date().toISOString().slice(0,10)+".csv";
+  a.click();
+}
+
+// ══════════════════════════════════════════════
+// FUND 5 TABLE
+// ══════════════════════════════════════════════
+// CURRENCY FORMATTER
+// ══════════════════════════════════════════════
+function formatCurrency(val){
+  if(!val && val !== 0) return "";
+  // strip everything except digits and decimal point
+  const clean = String(val).replace(/[^0-9.]/g,"");
+  if(clean === "") return val; // non-numeric — return as-is
+  const n = parseFloat(clean);
+  if(isNaN(n)) return val;
+  // format with commas, no cents unless already present
+  return "$" + n.toLocaleString("en-US", {maximumFractionDigits:0});
+}
+
+// ══════════════════════════════════════════════
+// STATS: active count + asset pie + value total
+// ══════════════════════════════════════════════
+const PIE_COLORS = ['#4891DC','#373534','#8E8E89','#C5C5C0','#B65E2C','#DC8830'];
+
+function fmtM(n){
+  if(n===0) return "$0";
+  if(n>=1e9) return "$"+(n/1e9).toFixed(1)+"B";
+  if(n>=1e6) return "$"+(n/1e6).toFixed(1)+"M";
+  return "$"+n.toLocaleString();
+}
+
+function computeStats(){
+  let activeCount=0, submittedCount=0, reviewCount=0, vcTotal=0, fundEqTotal=0, acqCount=0, devCount=0;
+  const assetCounts={};
+  const phaseCounts={TS:0,PSA:0,DD:0,DESIGN:0,PERMIT:0,none:0};
+
+  tableRows.forEach(r=>{
+    if(r.stage==="ACTIVE")       activeCount++;
+    if(r.stage==="SUBMITTED")    submittedCount++;
+    if(r.stage==="UNDER REVIEW") reviewCount++;
+    if(r.stage==="ACTIVE"){
+      const ph = (r.phase||"").toUpperCase();
+      if(ph==="TS")     phaseCounts.TS++;
+      else if(ph==="PSA")    phaseCounts.PSA++;
+      else if(ph==="DD")     phaseCounts.DD++;
+      else if(ph==="DESIGN") phaseCounts.DESIGN++;
+      else if(ph==="PERMIT") phaseCounts.PERMIT++;
+      else                   phaseCounts.none++;
+    }
+    if(r.stage==="ACTIVE"||r.stage==="SUBMITTED"||r.stage==="UNDER AGREEMENT"){
+      if(r.valueCost){
+        const n=parseFloat(r.valueCost.replace(/[$,\s]/g,""));
+        if(!isNaN(n)) vcTotal+=n;
+      }
+      if(r.fund5equity){
+        const fe=parseFloat(r.fund5equity.replace(/[$,\s]/g,""));
+        if(!isNaN(fe)) fundEqTotal+=fe;
+      }
+    }
+    if(r.stage==="ACTIVE"||r.stage==="SUBMITTED"||r.stage==="UNDER REVIEW"){
+      const a=r.asset||"—";
+      assetCounts[a]=(assetCounts[a]||0)+1;
+      if(r.deal==="ACQ") acqCount++;
+      if(r.deal==="DEV") devCount++;
+    }
+  });
+
+  // Staged pipeline total (blue hero box)
+  const stagedEl=document.getElementById("staged-total");
+  if(stagedEl) stagedEl.textContent=activeCount+submittedCount+reviewCount;
+
+  // Phase distribution (active deals only)
+  const phTotal = Object.values(phaseCounts).reduce((a,b)=>a+b,0);
+  const phKeys = ["ts","psa","dd","design","permit","none"];
+  const phVals = [phaseCounts.TS,phaseCounts.PSA,phaseCounts.DD,phaseCounts.DESIGN,phaseCounts.PERMIT,phaseCounts.none];
+  const g2=id=>document.getElementById(id);
+  const phLblNames={ts:"TS",psa:"PSA",dd:"DD",design:"Design",permit:"Permit",none:"None"};
+  const phColors={ts:"#3949ab",psa:"#2e7d32",dd:"#f57f17",design:"#00838f",permit:"#c62828",none:"#8E8E89"};
+  phKeys.forEach((k,i)=>{
+    const n=phVals[i];
+    const pct=phTotal ? Math.round(n/phTotal*100) : 0;
+    const w=(phTotal && n>0) ? pct+"%" : "0%";
+    if(g2("ph-seg-"+k))  g2("ph-seg-"+k).style.width = (phTotal ? pct+"%" : "0%");
+    if(g2("ph-cnt-"+k)){
+      g2("ph-cnt-"+k).style.width = w;
+      g2("ph-cnt-"+k).style.color = phColors[k];
+      g2("ph-cnt-"+k).textContent = n>0 ? n : "";
+    }
+    if(g2("ph-lbl-"+k)){
+      g2("ph-lbl-"+k).style.width = w;
+      g2("ph-lbl-"+k).style.color = phColors[k];
+      g2("ph-lbl-"+k).textContent = n>0 ? phLblNames[k] : "";
+    }
+  });
+
+  // Stage breakdown bar
+  const stageTotal = activeCount + submittedCount + reviewCount;
+  const pct = (n) => stageTotal ? Math.round(n/stageTotal*100) : 0;
+  const aPct=pct(activeCount), sPct=pct(submittedCount), rPct=stageTotal ? 100-aPct-sPct : 0;
+  const g=id=>document.getElementById(id);
+  if(g("seg-active"))         g("seg-active").style.width         = aPct+"%";
+  if(g("seg-submitted"))      g("seg-submitted").style.width      = sPct+"%";
+  if(g("seg-review"))         g("seg-review").style.width         = rPct+"%";
+  if(g("stage-n-active"))     g("stage-n-active").textContent     = activeCount;
+  if(g("stage-n-submitted"))  g("stage-n-submitted").textContent  = submittedCount;
+  if(g("stage-n-review"))     g("stage-n-review").textContent     = reviewCount;
+  if(g("stage-pct-active"))   g("stage-pct-active").textContent   = stageTotal ? aPct+"%" : "";
+  if(g("stage-pct-submitted"))g("stage-pct-submitted").textContent= stageTotal ? sPct+"%" : "";
+  if(g("stage-pct-review"))   g("stage-pct-review").textContent   = stageTotal ? rPct+"%" : "";
+
+  // Active value / cost
+  const vcEl=document.getElementById("active-vc-val");
+  if(vcEl) vcEl.textContent=fmtM(vcTotal);
+  const fundEqEl=document.getElementById("active-fundeq-val");
+  if(fundEqEl) fundEqEl.textContent=fmtM(fundEqTotal);
+
+  // Tug-of-war ACQ vs DEV
+  const tugTotal = acqCount + devCount;
+  const acqPct = tugTotal ? Math.round(acqCount/tugTotal*100) : 50;
+  const devPct = tugTotal ? 100-acqPct : 50;
+  const el=id=>document.getElementById(id);
+  if(el("tug-acq-n"))  el("tug-acq-n").textContent  = acqCount;
+  if(el("tug-dev-n"))  el("tug-dev-n").textContent  = devCount;
+  if(el("tug-acq-pct"))el("tug-acq-pct").textContent= acqPct+"%";
+  if(el("tug-dev-pct"))el("tug-dev-pct").textContent= devPct+"%";
+  if(el("tug-fill"))   el("tug-fill").style.width    = acqPct+"%";
+  if(el("tug-flag"))   el("tug-flag").style.left     = "calc("+acqPct+"% - 1.5px)";
+
+  // Asset pie chart
+  buildAssetPie(assetCounts);
+}
+
+function buildAssetPie(counts){
+  const pieEl=document.getElementById("asset-pie");
+  const legEl=document.getElementById("asset-legend");
+  if(!pieEl||!legEl) return;
+  pieEl.innerHTML=""; legEl.innerHTML="";
+
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((s,[,v])=>s+v,0);
+
+  if(total===0){
+    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx","48"); c.setAttribute("cy","48"); c.setAttribute("r","44");
+    c.setAttribute("fill","#E2E2DE"); pieEl.appendChild(c);
+    legEl.innerHTML='<span style="color:#8E8E89;font-size:9px">No data yet</span>';
+    return;
+  }
+
+  const cx=48, cy=48, r=44;
+  let angle=-Math.PI/2;
+  entries.forEach(([asset,count],i)=>{
+    const pct=count/total;
+    const end=angle+pct*2*Math.PI;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(end),   y2=cy+r*Math.sin(end);
+    const large=pct>0.5?1:0;
+    const color=PIE_COLORS[i%PIE_COLORS.length];
+
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d",`M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z`);
+    path.setAttribute("fill",color);
+    path.setAttribute("stroke","#fff"); path.setAttribute("stroke-width","1");
+    pieEl.appendChild(path);
+
+    const row=document.createElement("div"); row.className="leg-row";
+    row.innerHTML=`<span class="leg-dot" style="background:${color}"></span><span>${asset} · ${count}</span>`;
+    legEl.appendChild(row);
+
+    angle=end;
+  });
+}
+
+// ══════════════════════════════════════════════
+// DRAG-AND-DROP REORDER
+// ══════════════════════════════════════════════
+let dragSrcId = null;
+let _dragY    = 0;
+let _scrollIv = null;
+
+// Track mouse Y continuously during drag — dragover fires even with low frequency
+document.addEventListener("dragover", e=>{ _dragY = e.clientY; e.preventDefault(); }, {passive:false});
+
+function _startAutoScroll(){
+  _stopAutoScroll();
+  const outer = document.getElementById("tables-outer");
+  _scrollIv = setInterval(()=>{
+    if(!outer) return;
+    const rect  = outer.getBoundingClientRect();
+    const zone  = 200;   // px from edge of the table container
+    const speed = 18;    // max px per tick
+    if(_dragY < rect.top + zone){
+      // cursor in upper zone — scroll up, faster the closer to top
+      const intensity = Math.max(0, 1 - (_dragY - rect.top) / zone);
+      outer.scrollTop -= Math.ceil(speed * intensity);
+    } else if(_dragY > rect.bottom - zone){
+      // cursor in lower zone — scroll down
+      const intensity = Math.max(0, 1 - (rect.bottom - _dragY) / zone);
+      outer.scrollTop += Math.ceil(speed * intensity);
+    }
+  }, 16); // ~60 fps
+}
+
+function _stopAutoScroll(){
+  if(_scrollIv){ clearInterval(_scrollIv); _scrollIv = null; }
+}
+
+document.addEventListener("dragend", _stopAutoScroll);
+document.addEventListener("drop",    _stopAutoScroll);
+
+function onDragStart(e){
+  dragSrcId = this.getAttribute("data-id");
+  this.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", dragSrcId);
+  _startAutoScroll();
+}
+
+function onDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  document.querySelectorAll("tbody tr.drag-over").forEach(r=>r.classList.remove("drag-over"));
+  if(!this.classList.contains("dragging")) this.classList.add("drag-over");
+}
+
+function onDragLeave(){
+  this.classList.remove("drag-over");
+}
+
+function onDrop(e){
+  e.preventDefault();
+  this.classList.remove("drag-over");
+  const targetId = this.getAttribute("data-id");
+  if(dragSrcId == null || dragSrcId === targetId) return;
+
+  const srcRow = tableRows.find(r=>String(r._id)===String(dragSrcId));
+  const tgtRow = tableRows.find(r=>String(r._id)===String(targetId));
+  if(!srcRow||!tgtRow) return;
+
+  const stageChanged = srcRow.stage !== tgtRow.stage;
+  if(stageChanged){
+    logChange("STAGE CHANGE: "+(srcRow.stage||"None")+" → "+(tgtRow.stage||"None"), srcRow._id, {...srcRow, stage:tgtRow.stage});
+    srcRow.stage = tgtRow.stage;
+    if(srcRow.stage !== "ACTIVE") srcRow.phase = "";
+  }
+
+  const srcIdx = tableRows.findIndex(r=>String(r._id)===String(dragSrcId));
+  tableRows.splice(srcIdx,1);
+  const insertAt = tableRows.findIndex(r=>String(r._id)===String(targetId));
+  tableRows.splice(insertAt,0,srcRow);
+
+  if(stageChanged){
+    persistRow(srcRow); // stage changed — just save the row
+  } else {
+    persist(); // same stage reorder — save sort order
+  }
+  applyFilters();
+}
+
+function onDropToSection(e, targetStage){
+  if(dragSrcId == null) return;
+  const srcRow = tableRows.find(r=>String(r._id)===String(dragSrcId));
+  if(!srcRow || srcRow.stage === targetStage) return;
+
+  logChange("STAGE CHANGE: "+(srcRow.stage||"None")+" → "+(targetStage||"None"), srcRow._id, {...srcRow, stage:targetStage});
+
+  const srcIdx = tableRows.findIndex(r=>String(r._id)===String(dragSrcId));
+  tableRows.splice(srcIdx,1);
+
+  srcRow.stage = targetStage;
+  if(targetStage !== "ACTIVE") srcRow.phase = "";
+
+  const lastIdx = tableRows.reduce((last,r,i)=> r.stage===targetStage ? i : last, -1);
+  if(lastIdx >= 0){ tableRows.splice(lastIdx+1,0,srcRow); }
+  else { tableRows.push(srcRow); }
+
+  persistRow(srcRow); // save stage change immediately
+  applyFilters();
+}
+
+function onDragEnd(){
+  this.setAttribute("draggable","false");
+  this.classList.remove("dragging");
+  document.querySelectorAll("tbody tr.drag-over").forEach(r=>r.classList.remove("drag-over"));
+  dragSrcId = null;
+}
+
+// ══════════════════════════════════════════════
+// PATH MODAL
+// ══════════════════════════════════════════════
+function openModal(id, projectName){
+  modalKey = id;
+  // Only pre-fill with a saved path — never auto-generate a placeholder
+  const saved = projPaths[id] || "";
+  const input = document.getElementById("modalPathInput");
+  input.value = saved;
+  input.placeholder = BASE_PATH+"\\"+projectName;
+  document.getElementById("pathModal").classList.add("show");
+  setTimeout(()=>input.focus(),50);
+}
+function closeModal(){
+  document.getElementById("pathModal").classList.remove("show"); modalKey=null;
+}
+function getPathForId(id){
+  return projPaths[id] || null;
+}
+
+function copyPath(id, projectName){
+  const path = projPaths[id];
+  if(!path){
+    showErrorToast("No folder path saved — right-click the folder icon to add one");
+    return;
+  }
+  navigator.clipboard.writeText(path)
+    .then(()=> showToast("📋 Path copied to clipboard!"))
+    .catch(()=> showToast("⚠ Could not copy — check browser permissions"));
+}
+
+function showErrorToast(msg){
+  const t = document.getElementById("toast");
+  const m = document.getElementById("toastMsg");
+  const s = document.getElementById("toastTip");
+  if(!t||!m) return;
+  m.textContent = msg;
+  if(s) s.textContent = "";
+  t.style.background = "#c0392b";
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.classList.remove("show"); t.style.background=""; }, 3000);
+}
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  document.getElementById("toastMsg").textContent=msg;
+  document.getElementById("toastTip").textContent="";
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+function saveModalPath(){
+  if(modalKey===null) return;
+  projPaths[modalKey]=document.getElementById("modalPathInput").value;
+  persistPaths();
+  closeModal();
+}
+document.getElementById("pathModal").addEventListener("click",e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+
+
+</script>
+<!-- ADD DEAL FAB — static HTML so save/reload doesn't duplicate it -->
+<button class="btn btn-blue" onclick="openAddDeal()" style="position:fixed;bottom:24px;right:82px;z-index:300;box-shadow:0 3px 10px rgba(0,0,0,.25);padding:9px 18px;font-size:13px;border-radius:20px;">+ Add Deal</button>
+
+<!-- AI UPDATE FAB -->
+<button id="ai-update-fab" onclick="openAIPanel()" title="AI Updates" style="position:fixed;bottom:24px;right:24px;z-index:300;background:#373534;color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.25);display:inline-flex;align-items:center;justify-content:center;transition:background .15s;">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <!-- Large 4-point star centered at 15,13 -->
+    <path d="M15 5c0 0-.8 4-2 5.2C11.8 11.3 8 12 8 12c0 0 3.8.7 5 2 1.2 1.2 2 5 2 5s.8-3.8 2-5c1.2-1.2 5-2 5-2s-3.8-.7-5-2C15.8 9 15 5 15 5z"/>
+    <!-- Small 4-point star top left centered at 7,7 -->
+    <path d="M7 2c0 0-.5 2.5-1.3 3.2C4.9 5.9 2.5 6.4 2.5 6.4s2.4.5 3.2 1.3C6.5 8.5 7 11 7 11s.5-2.5 1.3-3.3C9.1 6.9 11.5 6.4 11.5 6.4S9.1 5.9 8.3 5.2C7.5 4.5 7 2 7 2z"/>
+    <!-- Tiny 4-point star bottom left centered at 5,18 -->
+    <path d="M5 15c0 0-.4 1.6-.9 2.1C3.6 17.6 2 17.9 2 17.9s1.6.3 2.1.9C4.6 19.3 5 21 5 21s.4-1.7.9-2.2C6.4 18.2 8 17.9 8 17.9s-1.6-.3-2.1-.9C5.4 16.6 5 15 5 15z"/>
+  </svg>
+</button>
+
+<!-- AI PANEL -->
+<div id="ai-panel" style="position:fixed;top:0;right:-420px;width:400px;height:100vh;background:#f2f2f0;box-shadow:-4px 0 20px rgba(0,0,0,.18);z-index:400;display:flex;flex-direction:column;transition:right .3s ease;overflow:hidden;">
+  <div style="background:var(--nd-dark);color:#fff;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+        <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+        <path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75L19 14z" opacity=".8"/>
+      </svg>
+      <span style="font-size:13px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;">AI Pipeline Updates</span>
+    </div>
+    <button onclick="closeAIPanel()" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer;line-height:1;padding:0;">✕</button>
+  </div>
+  <div style="padding:12px 16px;background:#e8e8e5;border-bottom:1px solid #d4d4d0;font-size:11px;color:#666;flex-shrink:0;">
+    Reads your recent emails to suggest updates for Active, Submitted, and Under Review deals.
+  </div>
+  <div id="ai-panel-body" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+    <div style="text-align:center;padding:40px 20px;color:#999;font-size:12px;">Press Scan to search your emails for pipeline updates.</div>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid #d4d4d0;background:#e8e8e5;flex-shrink:0;">
+    <button id="ai-scan-btn" onclick="runAIScan()" style="width:100%;padding:10px;background:var(--nd-blue);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;">
+      ✦ Scan Emails
+    </button>
+  </div>
+</div>
+
+<!-- AI PANEL BACKDROP -->
+<div id="ai-backdrop" onclick="closeAIPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:399;"></div>
+
+<script>
+// ── AI PANEL ──────────────────────────────────
+const CLAUDE_MODEL = "claude-sonnet-4-6";
+
+function saveAIKey(){
+  const input = document.getElementById("ai-key-input");
+  const key = (input.value || "").trim();
+  if(!key.startsWith("sk-ant-")){ 
+    input.style.borderColor = "#c0392b"; 
+    return; 
+  }
+  setAnthropicKey(key);
+  input.value = "";
+  document.getElementById("ai-key-section").style.display = "none";
+  showToast("✓ API key saved for this session");
+}
+
+function getAnthropicKey(){
+  return _anthropicKey || sessionStorage.getItem("nd_anthropic_key") || "";
+}
+
+function setAnthropicKey(key){
+  _anthropicKey = key.trim();
+  sessionStorage.setItem("nd_anthropic_key", key.trim());
+}
+
+function openAIPanel(){
+  document.getElementById("ai-panel").style.right = "0";
+  document.getElementById("ai-backdrop").style.display = "block";
+}
+function closeAIPanel(){
+  document.getElementById("ai-panel").style.right = "-420px";
+  document.getElementById("ai-backdrop").style.display = "none";
+}
+
+async function runAIScan(){
+  const btn = document.getElementById("ai-scan-btn");
+  const body = document.getElementById("ai-panel-body");
+  btn.disabled = true;
+  btn.textContent = "Scanning emails…";
+
+  // Get deals in active stages
+  const stagedDeals = tableRows.filter(r =>
+    r.stage === "ACTIVE" || r.stage === "SUBMITTED" || r.stage === "UNDER REVIEW"
+  );
+
+  if(stagedDeals.length === 0){
+    body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#999;font-size:12px;">No staged deals found.</div>`;
+    btn.disabled = false; btn.textContent = "✦ Scan Emails";
+    return;
+  }
+
+  body.innerHTML = `<div style="text-align:center;padding:20px;color:#888;font-size:12px;">Reading your emails…</div>`;
+
+  try {
+    // Fetch emails for each deal one by one
+    const dealResults = [];
+    for(let i = 0; i < stagedDeals.length; i++){
+      const deal = stagedDeals[i];
+      body.innerHTML = `<div style="text-align:center;padding:20px;color:#888;font-size:12px;">Searching emails for deal ${i+1} of ${stagedDeals.length}:<br><strong>${deal.name}</strong></div>`;
+
+      try {
+        const searchQuery = encodeURIComponent(`"${deal.name}"`);
+        console.log(`🔍 Searching emails for: "${deal.name}"`);
+        const emailData = await graphGet(
+          `/me/messages?$search=${searchQuery}&$top=10&$select=subject,bodyPreview,from,receivedDateTime`
+        );
+        const emails = emailData.value || [];
+        console.log(`  → Found ${emails.length} emails total for "${deal.name}"`);
+        // Filter to last 14 days
+        const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+        const recent = emails.filter(e => new Date(e.receivedDateTime) > cutoff);
+        // Relevance filter: check if deal name words actually appear in subject or preview
+        const dealWords = deal.name.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+        const relevant = recent.filter(e => {
+          const text = ((e.subject||"") + " " + (e.bodyPreview||"")).toLowerCase();
+          return dealWords.some(w => text.includes(w));
+        });
+        console.log(`  → ${relevant.length} relevant emails within last 14 days`);
+        if(relevant.length > 0){
+          dealResults.push({ deal, emails: relevant });
+        }
+      } catch(e){ 
+        console.error(`  ✗ Search failed for "${deal.name}":`, e.message);
+      }
+    }
+
+    if(dealResults.length === 0){
+      body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#999;font-size:12px;">No recent emails found mentioning any staged deals in the last 14 days.</div>`;
+      btn.disabled = false; btn.textContent = "✦ Scan Emails";
+      return;
+    }
+
+    body.innerHTML = `<div style="text-align:center;padding:20px;color:#888;font-size:12px;">Analyzing ${dealResults.length} deal${dealResults.length>1?"s":""} with email activity…</div>`;
+
+    // Build prompt for Claude
+    const currentDate = new Date().toLocaleDateString("en-US", {month:"long", day:"numeric", year:"numeric"});
+    const dealSummaries = dealResults.map(({deal, emails}) => {
+      const emailText = emails.slice(0,3).map(e =>
+        `From: ${e.from?.emailAddress?.name||"Unknown"} (${new Date(e.receivedDateTime).toLocaleDateString()})\nSubject: ${e.subject}\nPreview: ${(e.bodyPreview||"").substring(0,150)}`
+      ).join("\n---\n");
+      return `DEAL: ${deal.name}
+Stage: ${deal.stage} | Phase: ${deal.phase||"—"} | Priority: ${deal.priority||"—"}
+Asset: ${deal.asset||"—"} | Deal Type: ${deal.deal||"—"} | Size: ${deal.size||"—"}
+Value/Cost: ${deal.valueCost||"—"} | Acq Lead: ${deal.acqLead||"—"} | Analyst: ${deal.analyst||"—"}
+IC Date: ${deal.icDate||"—"} | Key Date: ${deal.criticalDate||"—"}
+Current Comments: ${deal.comments||"none"}
+
+EMAILS:\n${emailText}`;
+    }).join("\n\n════════════\n\n");
+
+    const prompt = `You are a real estate investment analyst assistant at National Development. Today is ${currentDate}.
+
+Review these pipeline deals and their recent emails. For each deal:
+1. First verify the emails are actually about that specific deal — if the emails don't clearly reference the deal by name or address, set type to "none" and skip it
+2. Only suggest updates that are meaningfully new — do not suggest changes already reflected in the current deal data (e.g. if priority is already HIGH, do not suggest raising priority)
+3. Only suggest something if you are confident the email content supports it
+
+Respond ONLY with a raw JSON array, no markdown, no explanation:
+[{"dealName":"exact name","suggestion":"one short sentence","detail":"one short sentence explaining why based on email","type":"stage|phase|priority|comment|none"}]
+
+${dealSummaries}`;
+
+    const response = await fetch("https://vibrant-robin-8530-sf8zt8hy88wj.ndinvestments.deno.net/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const rawText = (data.content || []).find(b => b.type === "text")?.text || "[]";
+    console.log("Claude raw response:", rawText);
+
+    let suggestions = [];
+    try {
+      const clean = rawText.replace(/```json|```/g, "").trim();
+      suggestions = JSON.parse(clean);
+    } catch(e){
+      // Try to extract JSON array from the response
+      const match = rawText.match(/\[[\s\S]*\]/);
+      if(match){
+        try {
+          // Take everything from first [ to last ]
+          const jsonStr = rawText.substring(rawText.indexOf('['), rawText.lastIndexOf(']') + 1);
+          console.log("Extracted JSON:", jsonStr.substring(0, 500));
+          suggestions = JSON.parse(jsonStr);
+        } catch(e2){
+          body.innerHTML = `<div style="padding:16px;color:#c0392b;font-size:12px;">⚠ Could not parse AI response.<br><small>${rawText}</small></div>`;
+          btn.disabled = false; btn.textContent = "✦ Scan Emails";
+          return;
+        }
+      } else {
+        body.innerHTML = `<div style="padding:16px;color:#c0392b;font-size:12px;">⚠ Could not parse AI response.<br><small>${rawText}</small></div>`;
+        btn.disabled = false; btn.textContent = "✦ Scan Emails";
+        return;
+      }
+    }
+
+    // Render suggestions
+    if(suggestions.length === 0){
+      body.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#999;font-size:12px;">No actionable updates found in recent emails.</div>`;
+    } else {
+      const typeColors = { stage:"#4891DC", phase:"#2e7d4f", priority:"#c0392b", comment:"#DC8830", none:"#8E8E89" };
+      const typeLabels = { stage:"Stage Change", phase:"Phase Change", priority:"Priority", comment:"Comment Update", none:"No Change" };
+      body.innerHTML = suggestions.map((s, i) => `
+        <div style="background:#fff;border-radius:6px;padding:13px 14px;border:1px solid #ddd;border-left:3px solid ${typeColors[s.type]||"#8E8E89"};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+            <span style="font-weight:700;font-size:12px;color:var(--nd-dark);">${s.dealName}</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:${typeColors[s.type]||"#8E8E89"};white-space:nowrap;">${typeLabels[s.type]||""}</span>
+          </div>
+          <div style="font-size:12px;color:#333;margin-bottom:5px;">${s.suggestion}</div>
+          <div style="font-size:11px;color:#777;line-height:1.4;">${s.detail}</div>
+        </div>
+      `).join("");
+    }
+
+    const timestamp = new Date().toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"});
+    body.insertAdjacentHTML("beforeend", `<div style="text-align:center;font-size:10px;color:#aaa;padding-top:4px;">Scanned ${currentDate} at ${timestamp}</div>`);
+
+  } catch(e){
+    body.innerHTML = `<div style="padding:16px;color:#c0392b;font-size:12px;">⚠ Error: ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = "✦ Scan Emails";
+}
+
+// ── PRINT DASHBOARD ──
+function printDashboard(){
+  const printStages = ["ACTIVE","SUBMITTED","UNDER REVIEW"];
+  const dateStr = new Date().toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+  // Clone and clean each stage section
+  const sections = [...document.querySelectorAll(".stage-section")]
+    .filter(s => printStages.includes(s.getAttribute("data-stage")));
+
+  // Columns to remove by index (0-based, in cloned DOM):
+  // 0=folder, 4=stage (redundant, grouped by stage), 6=keyDate, 19=delete
+  const removeCols = new Set([0,4,6,19]);
+
+  const cleanedSections = sections.map(sec => {
+    const clone = sec.cloneNode(true);
+    // Remove all buttons except badge-style ones
+    clone.querySelectorAll("button:not(.priority-btn):not(.icdate-btn)").forEach(b => b.remove());
+    // Clean each row - remove unwanted cells
+    clone.querySelectorAll("tr").forEach(row => {
+      const cells = [...row.children];
+      // Remove in reverse order so indices stay valid
+      [...removeCols].sort((a,b)=>b-a).forEach(idx => {
+        if(cells[idx]) cells[idx].remove();
+      });
+    });
+    // Remove select arrows and tfoot (totals row)
+    clone.querySelectorAll(".sel-arrow").forEach(e=>e.remove());
+    clone.querySelectorAll("tfoot").forEach(e=>e.remove());
+    return clone.outerHTML;
+  }).join("");
+
+  // Clone stats
+  const statsEl = document.querySelector(".stats");
+  const statsHTML = statsEl ? statsEl.outerHTML : "";
+
+  const win = window.open("","_blank");
+  win.document.write(`<!DOCTYPE html><html><head>
+  <title></title>
+  <style>
+    @page{size:landscape;margin:5mm;}
+    /* Suppress browser print header/footer */
+    @page :first { margin-top: 5mm; }
+    html { -webkit-print-color-adjust: exact; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;font-size:9.5px;color:#373534;background:#fff;padding:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    h1{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+    .date{font-size:8.5px;color:#8E8E89;margin-bottom:10px;}
+    /* Stats */
+    .stats{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;}
+    .stat{border:1px solid #E2E2DE;border-radius:4px;padding:6px 8px;flex:1;min-width:0;}
+    .stat.hl{background:#4891DC !important;border-color:#4891DC;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);}
+    .stat-vc{flex:1.1;}.stat-stages{flex:1.3;}.stat-chart{flex:1.2;}.stat-tug{flex:1.2;}.stat-phases{flex:1.8;}
+    .stat-lbl{font-size:6.5px;letter-spacing:.8px;text-transform:uppercase;color:#8E8E89;font-weight:600;margin-bottom:1px;}
+    .stat.hl .stat-lbl{color:rgba(255,255,255,.8) !important;}
+    .stat-val{font-size:16px;font-weight:700;color:#4891DC;line-height:1;}
+    .stat.hl .stat-val{color:#fff !important;}
+    .stat-sub{font-size:7.5px;color:#8E8E89;margin-top:1px;}
+    .stat.hl .stat-sub{color:rgba(255,255,255,.7) !important;}
+    .stages-bar-wrap{margin:3px 0;}
+    .stages-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:#E2E2DE;}
+    .seg{height:100%;}
+    .seg-active{background:#4891DC !important;}.seg-submitted{background:#DC8830 !important;}.seg-review{background:#8E8E89 !important;}
+    .stages-legend{display:flex;flex-direction:column;gap:2px;margin-top:3px;}
+    .stage-leg-item{display:flex;align-items:center;gap:3px;}
+    .stage-dot{width:5px;height:5px;border-radius:1px;flex-shrink:0;}
+    .dot-active{background:#4891DC !important;}.dot-submitted{background:#DC8830 !important;}.dot-review{background:#8E8E89 !important;}
+    .stage-leg-n{font-size:11px;font-weight:700;min-width:14px;color:#373534;}
+    .stage-leg-lbl{font-size:6.5px;color:#8E8E89;text-transform:uppercase;letter-spacing:.4px;font-weight:600;}
+    .stage-leg-pct{font-size:6.5px;color:#C5C5C0;margin-left:auto;font-weight:600;}
+    .chart-body{display:flex;align-items:center;gap:5px;margin-top:3px;}
+    #asset-legend{font-size:7.5px;line-height:1.5;}
+    .leg-row{display:flex;align-items:center;gap:2px;}
+    .leg-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+    .phases-body{display:flex;flex-direction:column;justify-content:center;}
+    .phase-counts{display:flex;margin-bottom:1px;}
+    .ph-cnt-seg{overflow:hidden;white-space:nowrap;font-size:9px;font-weight:700;padding-left:2px;}
+    .phase-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:#E2E2DE;}
+    .ph-seg{height:100%;}
+    .ph-seg-ts{background:#3949ab !important;}.ph-seg-psa{background:#2e7d32 !important;}.ph-seg-dd{background:#f57f17 !important;}
+    .ph-seg-design{background:#00838f !important;}.ph-seg-permit{background:#c62828 !important;}.ph-seg-none{background:#C5C5C0 !important;}
+    .phase-labels{display:flex;margin-top:1px;}
+    .ph-lbl-seg{overflow:hidden;white-space:nowrap;font-size:6.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding-left:2px;}
+    .tug-body{display:flex;flex-direction:column;justify-content:center;}
+    .tug-counts{display:flex;justify-content:space-between;margin:2px 0 3px;}
+    .tug-acq{font-size:8px;font-weight:700;color:#4891DC !important;}
+    .tug-acq span{font-size:13px;}
+    .tug-dev{font-size:8px;font-weight:700;color:#373534;}
+    .tug-dev span{font-size:13px;}
+    .tug-track{position:relative;height:8px;border-radius:4px;background:#373534 !important;overflow:hidden;}
+    .tug-fill{position:absolute;left:0;top:0;bottom:0;background:#4891DC !important;border-radius:4px 0 0 4px;}
+    .tug-flag{position:absolute;top:-1px;bottom:-1px;width:2px;background:#fff;border-radius:1px;}
+    .tug-pcts{display:flex;justify-content:space-between;margin-top:2px;font-size:7.5px;}
+    /* Stage sections */
+    .stage-section{margin-bottom:10px;page-break-inside:avoid;break-inside:avoid;}
+    .stage-hdr{padding:4px 8px;border-radius:4px 4px 0 0;font-size:8.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#fff !important;display:flex;justify-content:space-between;align-items:center;}
+    .stage-hdr-active{background:#4891DC !important;}
+    .stage-hdr-submitted{background:#DC8830 !important;}
+    .stage-hdr-review{background:#8E8E89 !important;}
+    .stage-hdr-pill{background:rgba(255,255,255,.22);border-radius:8px;padding:1px 5px;font-size:7.5px;}
+    .tbl-wrap{overflow:visible;}
+    /* Table - auto layout so columns size to content */
+    table{width:100%;border-collapse:collapse;table-layout:auto;}
+    thead th{background:#373534 !important;color:#fff !important;padding:4px 5px;text-align:left;font-size:7px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;}
+    tbody tr{border-bottom:1px solid #E2E2DE;}
+    tbody tr.high-priority{background:#dcecfb !important;box-shadow:inset 3px 0 0 0 #4891DC;}
+    td{padding:3px 5px;font-size:8.5px;vertical-align:middle;word-wrap:break-word;overflow-wrap:break-word;}
+    .td-grip,.td-folder{display:none !important;}
+    tfoot tr{border-top:2px solid #E2E2DE;background:#f5f5f2 !important;}
+    tfoot td{padding:3px 5px;font-size:8.5px;font-weight:700;}
+    .tfoot-count{font-size:8.5px;font-weight:700;color:#8E8E89;}
+    .tfoot-money{font-weight:700;}
+    /* Badges */
+    .badge{display:inline-block;padding:1px 4px;border-radius:6px;font-size:7px;font-weight:700;text-transform:uppercase;}
+    .b-phase-ts{background:#e8eaf6 !important;color:#3949ab !important;}
+    .b-phase-psa{background:#e8f5e9 !important;color:#2e7d32 !important;}
+    .b-phase-dd{background:#fff8e1 !important;color:#f57f17 !important;}
+    .b-phase-design{background:#e0f7fa !important;color:#00838f !important;}
+    .b-phase-permit{background:#fce4ec !important;color:#c62828 !important;}
+    .b-phase-closing{background:#e8f5e9 !important;color:#1b5e20 !important;}
+    .b-high{background:#fde8e8 !important;color:#c0392b !important;}
+    .b-med-p{background:#fff3cd !important;color:#856404 !important;}
+    .b-low{background:#e8f5e9 !important;color:#27ae60 !important;}
+    .b-icdate-set{background:#e8f4ec !important;color:#2a7a4b !important;border:1px solid #a5d6b7;border-radius:6px;padding:1px 4px;font-size:7px;font-weight:700;}
+    .b-icdate-tbd,.b-icdate-empty{background:#f0efee;color:#8E8E89;border:1px solid #E2E2DE;border-radius:6px;padding:1px 4px;font-size:7px;}
+    .sel-wrap{display:flex;align-items:center;}
+    select.nd-sel{font-size:8.5px;font-weight:600;background:none;border:none;appearance:none;-webkit-appearance:none;pointer-events:none;}
+    button{display:none !important;}
+    .icdate-btn,.priority-btn{display:inline !important;}
+    .proj-name{font-weight:600;color:#4891DC;}
+    .td-money{text-align:right;white-space:nowrap;}
+    .td-loc{color:#8E8E89;}
+    .td-comments{font-size:8px;color:#555;}
+    .drop-zone-row{display:none !important;}
+  </style>
+  </head><body>
+  <h1>National Development — Acquisitions Pipeline</h1>
+  <div class="date">${dateStr}</div>
+  ${statsHTML}
+  ${cleanedSections}
+  <script>
+    // Remove browser default header/footer by setting empty title and using print event
+    document.title = '';
+    setTimeout(()=>{ window.print(); }, 400);
+  <\/script>
+  </body></html>`);
+  win.document.close();
+}
+</script>
+</body></html>
